@@ -1,0 +1,17 @@
+/* 
+    Created on : Oct 2, 2020, 6:59:53 PM
+    Author     : john
+-fx-border-color: white; -fx-border-radius: 5;
+*/
+
+Label, GridPane, VBox, ListView {-fx-background-color: teal; -fx-text-fill: white;}
+
+/*Pane {-fx-background-color: teal; -fx-text-fill: white;*/
+Pane, BorderPane { -fx-text-fill: white;
+-fx-border-color: white; -fx-border-radius: 5;
+}
+
+.list-cell {
+    -fx-control-inner-background: teal ; -fx-text-fill: white;
+}
+

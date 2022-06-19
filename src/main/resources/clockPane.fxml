@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200" prefWidth="250" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" >
+   <children>
+      <Label fx:id="dateLabel" layoutX="10.0" layoutY="122.0" prefHeight="16.0" prefWidth="200" text="Sun Nev 12" textAlignment="CENTER">
+         <font>
+            <Font name="FreeSans" size="24.0" />
+         </font>
+      </Label>
+      <Label fx:id="timeLabel" alignment="TOP_CENTER" layoutX="50" layoutY="58.0" text="00:00" textAlignment="CENTER">
+         <font>
+            <Font name="FreeSans" size="43.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>

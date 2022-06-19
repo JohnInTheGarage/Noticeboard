@@ -1,0 +1,376 @@
+
+/*
+<!-- <FOR ./tabla/fila> -->
+      <img alt="Icono de cielo despejado" src="/imagenes_gcd/_iconos_municipios/11.png" title="Icono de cielo despejado" />  
+      <img alt="Icono de despejado noche" src="/imagenes_gcd/_iconos_municipios/11n.png" title="Icono de despejado noche" />  
+      <img alt="Icono de poco nuboso" src="/imagenes_gcd/_iconos_municipios/12.png" title="Icono de poco nuboso" />  
+      <img alt="Icono de poco nuboso noche" src="/imagenes_gcd/_iconos_municipios/12n.png" title="Icono de poco nuboso noche" />  
+      <img alt="Icono de Intervalos nubosos" src="/imagenes_gcd/_iconos_municipios/13.png" title="Icono de Intervalos nubosos" />  
+      <img alt="Icono de intervalos nubosos noche" src="/imagenes_gcd/_iconos_municipios/13n.png" title="Icono de intervalos nubosos noche" />  
+      <img alt="Icono de nuboso" src="/imagenes_gcd/_iconos_municipios/14.png" title="Icono de nuboso" />  
+      <img alt="Icono de nuboso noche" src="/imagenes_gcd/_iconos_municipios/14n.png" title="Icono de nuboso noche" />  
+      <img alt="Icono de muy nuboso" src="/imagenes_gcd/_iconos_municipios/15.png" title="Icono de muy nuboso" />  
+      <img alt="Icono de cubierto" src="/imagenes_gcd/_iconos_municipios/16.png" title="Icono de cubierto" />  
+      <img alt="Icono de nubes altas" src="/imagenes_gcd/_iconos_municipios/17.png" title="Icono de nubes altas" />  
+      <img alt="Icono de nubes altas noche" src="/imagenes_gcd/_iconos_municipios/17n.png" title="Icono de nubes altas noche" />  
+      
+      <img alt="Icono de intervalos nubosos con lluvia escasa" src="/imagenes_gcd/_iconos_municipios/43.png" title="Icono de intervalos nubosos con lluvia escasa" />  
+      <img alt="Icono de intervalos nubosos con lluvia escasa noche" src="/imagenes_gcd/_iconos_municipios/43n.png" title="Icono de intervalos nubosos con lluvia escasa noche" />  
+      <img alt="Icono de nuboso con lluvia escasa" src="/imagenes_gcd/_iconos_municipios/44.png" title="Icono de nuboso con lluvia escasa" />  
+      <img alt="Icono de nuboso con lluvia escasa noche" src="/imagenes_gcd/_iconos_municipios/44n.png" title="Icono de nuboso con lluvia escasa noche" />  
+      <img alt="Icono de muy nuboso con lluvia escasa" src="/imagenes_gcd/_iconos_municipios/45.png" title="Icono de muy nuboso con lluvia escasa" />  
+      <img alt="Icono de cubierto con lluvia escasa" src="/imagenes_gcd/_iconos_municipios/46.png" title="Icono de cubierto con lluvia escasa" />  
+      
+      <img alt="Icono de intervalos nubosos con lluvia" src="/imagenes_gcd/_iconos_municipios/23.png" title="Icono de intervalos nubosos con lluvia" />  
+      <img alt="Icono de intervalos nubosos con lluvia noche" src="/imagenes_gcd/_iconos_municipios/23n.png" title="Icono de intervalos nubosos con lluvia noche" />  
+      <img alt="Icono de nuboso con lluvia" src="/imagenes_gcd/_iconos_municipios/24.png" title="Icono de nuboso con lluvia" />  
+      <img alt="Icono de nuboso con lluvia noche" src="/imagenes_gcd/_iconos_municipios/24n.png" title="Icono de nuboso con lluvia noche" />  
+      <img alt="Icono de muy nuboso con lluvia" src="/imagenes_gcd/_iconos_municipios/25.png" title="Icono de muy nuboso con lluvia" />  
+      <img alt="Icono de cubierto con lluvia" src="/imagenes_gcd/_iconos_municipios/26.png" title="Icono de cubierto con lluvia" />  
+      
+      <img alt="Icono de intervalos nubosos con nieve escasa" src="/imagenes_gcd/_iconos_municipios/71.png" title="Icono de intervalos nubosos con nieve escasa" />  
+      <img alt="Icono de intervalos nubosos con nieve escasa noche" src="/imagenes_gcd/_iconos_municipios/71n.png" title="Icono de intervalos nubosos con nieve escasa noche" />  
+      <img alt="Icono de nuboso con nieve escasa" src="/imagenes_gcd/_iconos_municipios/72.png" title="Icono de nuboso con nieve escasa" />  
+      <img alt="Icono de nuboso con nieve escasa noche" src="/imagenes_gcd/_iconos_municipios/72n.png" title="Icono de nuboso con nieve escasa noche" />  
+      <img alt="Icono de muy nuboso con nieve escasa" src="/imagenes_gcd/_iconos_municipios/73.png" title="Icono de muy nuboso con nieve escasa" />  
+      <img alt="Icono de cubierto con nieve escasa" src="/imagenes_gcd/_iconos_municipios/74.png" title="Icono de cubierto con nieve escasa" />  
+      <img alt="Icono de intervalos nubosos con nieve" src="/imagenes_gcd/_iconos_municipios/33.png" title="Icono de intervalos nubosos con nieve" />  
+      <img alt="Icono de intervalos nubosos con nieve noche" src="/imagenes_gcd/_iconos_municipios/33n.png" title="Icono de intervalos nubosos con nieve noche" />  
+      <img alt="Icono de nuboso con nieve" src="/imagenes_gcd/_iconos_municipios/34.png" title="Icono de nuboso con nieve" />  
+      <img alt="Icono de nuboso con nieve noche" src="/imagenes_gcd/_iconos_municipios/34n.png" title="Icono de nuboso con nieve noche" />  
+      <img alt="Icono de muy nuboso con nieve" src="/imagenes_gcd/_iconos_municipios/35.png" title="Icono de muy nuboso con nieve" />  
+      <img alt="Icono de cubierto con nieve" src="/imagenes_gcd/_iconos_municipios/36.png" title="Icono de cubierto con nieve" />  
+      
+<img alt="Icono de intervalos nubosos con tormenta" src="/imagenes_gcd/_iconos_municipios/51.png" title="Icono de intervalos nubosos con tormenta" />  
+      <img alt="Icono de intervalos nubosos con tormenta noche" src="/imagenes_gcd/_iconos_municipios/51n.png" title="Icono de intervalos nubosos con tormenta noche" />  
+      <img alt="Icono de nuboso con tormenta" src="/imagenes_gcd/_iconos_municipios/52.png" title="Icono de nuboso con tormenta" />  
+      <img alt="Icono de nuboso con tormenta noche" src="/imagenes_gcd/_iconos_municipios/52n.png" title="Icono de nuboso con tormenta noche" />  
+      <img alt="Icono de muy nuboso con tormenta" src="/imagenes_gcd/_iconos_municipios/53.png" title="Icono de muy nuboso con tormenta" />  
+      <img alt="Icono de cubierto con tormenta" src="/imagenes_gcd/_iconos_municipios/54.png" title="Icono de cubierto con tormenta" />  
+      <img alt="Icono de intervalos nubosos con tormenta y lluvia escasa" src="/imagenes_gcd/_iconos_municipios/61.png" title="Icono de intervalos nubosos con tormenta y lluvia escasa" />  
+      <img alt="Icono de intervalos nubosos con tormenta y lluvia escasa noche" src="/imagenes_gcd/_iconos_municipios/61n.png" title="Icono de intervalos nubosos con tormenta y lluvia escasa noche" />  
+
+      <img alt="Icono de nuboso con tormenta y lluvia escasa" src="/imagenes_gcd/_iconos_municipios/62.png" title="Icono de nuboso con tormenta y lluvia escasa" />  
+      <img alt="Icono de nuboso con tormenta y lluvia escasa noche" src="/imagenes_gcd/_iconos_municipios/62n.png" title="Icono de nuboso con tormenta y lluvia escasa noche" />  
+      <img alt="Icono de muy nuboso con tormenta y lluvia escasa" src="/imagenes_gcd/_iconos_municipios/63.png" title="Icono de muy nuboso con tormenta y lluvia escasa" />  
+      <img alt="Icono de cubierto con tormenta y lluvia escasa" src="/imagenes_gcd/_iconos_municipios/64.png" title="Icono de cubierto con tormenta y lluvia escasa" />  
+
+      <img alt="Icono de niebla" src="/imagenes_gcd/_iconos_municipios/81.png" title="Icono de niebla" />  
+
+      <img alt="Icono de bruma" src="/imagenes_gcd/_iconos_municipios/82.png" title="Icono de bruma" />  
+      <img alt="Icono de calima" src="/imagenes_gcd/_iconos_municipios/83.png" title="Icono de calima" />  
+
+[{
+	"unidad_generadora": "Área de Explotación y Gestión de Datos",
+	"periodicidad": "Cuatro veces al día",
+	"descripcion": "La Predicción por horas presenta la información de hora en hora hasta 48 horas. Se generan de forma automática mediante el tratamiento estadístico de los resultados de modelos numéricos de predicción",
+	"formato": "json/xml",
+
+	"campos": [{
+			"origen": [{
+					"id": "productor",
+					"descripcion": "Agencia Estatal de Meteorología - AEMET. Gobierno de España",
+					"tipo_datos": "string",
+					"requerido": true
+				},
+
+				{
+					"id": "web",
+					"descripcion": "URL de la Web de AEMET - http://www.aemet.es",
+					"tipo_datos": "string",
+					"requerido": true
+				},
+
+				{
+					"id": "language",
+					"descripcion": "es",
+					"tipo_datos": "string",
+					"requerido": true
+				},
+
+				{
+					"id": "copyright",
+					"descripcion": "© AEMET. Autorizado el uso de la información y su reproducción citando a AEMET como autora de la misma.",
+					"tipo_datos": "string",
+					"requerido": true
+				},
+
+				{
+					"id": "notaLegal",
+					"descripcion": "http://www.aemet.es/es/nota_legal/nota_legal",
+					"tipo_datos": "string",
+					"requerido": true
+				}
+			]
+		}, {
+			"id": "id",
+			"descripcion": "Indicativo de municipio",
+			"tipo_datos": "string",
+			"requerido": false
+		},
+
+		{
+			"id": "version",
+			"descripcion": "Versión",
+			"tipo_datos": "string",
+			"requerido": false
+		},
+
+		{
+			"id": "elaborado",
+			"descripcion": "Fecha de elaboración",
+			"tipo_datos": "dataTime",
+			"requerido": true
+		}, {
+			"id": "nombre",
+			"descripcion": "Nombre del municipio",
+			"tipo_datos": "string",
+			"requerido": true
+		},
+
+		{
+			"id": "provincia",
+			"descripcion": "Provincia a la que pertenece el municipio",
+			"tipo_datos": "string",
+			"requerido": true
+		}, {
+			"prediccion": [{
+				"dia": [{
+						"id": "fecha",
+						"descripcion": "Período de validez de la Predicción",
+						"tipo_datos": "date",
+						"requerido": false
+					},
+					
+					{
+						"id": "orto",
+						"descripcion": "Hora del amanecer",
+						"tipo_datos": "string",
+						"requerido": false
+					},
+		 
+					{
+						"id": "ocaso",
+						"descripcion": "Hora del atardecer",
+						"tipo_datos": "string",
+						"requerido": false
+					},
+
+					{
+
+						"estadoCielo": [{
+								"id": "periodo",
+								"descripcion": "Hora de validez para el estado del cielo (01/02/03 .... /22/23)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "descripcion",
+								"descripcion": "Descripción del estado del cielo",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Código del estado del Cielo",
+								"tipo_datos": "string",
+								"requerido": false
+							}
+						]
+
+					}, {
+
+						"precipitacion": [{
+								"id": "periodo",
+								"descripcion": "Hora de validez para la precipitación (01/02/03 .... /22/23)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Cantidad total de precipitación durante la hora anterior",
+								"tipo_datos": "string",
+								"unidad": "milímetros (mm)",
+								"requerido": false
+							}
+						]
+
+					}, {
+
+						"probPrecipitacion": [{
+								"id": "periodo",
+								"descripcion": "Periodo de validez para la probabilidad de precipitación (0107/0713/1319/1901)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+
+							{
+								"id": "value",
+								"descripcion": "Valor de la probabilidad de precipitación",
+								"tipo_datos": "string",
+								"unidad": "Tanto por ciento (%)",
+								"requerido": false
+							}
+						]
+
+					}, {
+						"probTormenta": [{
+								"id": "periodo",
+								"descripcion": "Periodo de validez para la probabilidad de tormenta (0107/0713/1319/1901)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Valor de la probabilidad de tormenta",
+								"tipo_datos": "string",
+								"unidad": "Tanto por ciento (%)",
+								"requerido": false
+							}
+						]
+
+					}, {
+
+						"nieve": [{
+								"id": "periodo",
+								"descripcion": "Hora de validez para la precipitación de nieve (01/02/03 .... /22/23)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Cantidad total de nieve que se prevé que caiga durante la hora anterior",
+								"tipo_datos": "string",
+								"unidad": "milímetros (mm)",
+								"requerido": false
+							}
+						]
+
+					}, {
+
+						"probNieve": [{
+								"id": "periodo",
+								"descripcion": "Periodo de validez para la probabilidad de precipitación de nieve (0107/0713/1319/1901)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Valor de la probabilidad de precipitación de nieve",
+								"tipo_datos": "string",
+								"unidad": "Tanto por ciento (%)",
+								"requerido": false
+							}
+						]
+
+					}, {
+
+						"temperatura": [{
+								"id": "periodo",
+								"descripcion": "Hora de validez para la temperatura (01/02/03 .... /22/23)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Valor de la temperatura",
+								"tipo_datos": "string",
+								"unidad": "Grados celsius",
+								"requerido": false
+							}
+						]
+
+					}, {
+
+						"sensTermica": [{
+								"id": "periodo",
+								"descripcion": "Hora de validez para la sensación térmica (01/02/03 .... /22/23)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Valor de la sensación térmica",
+								"tipo_datos": "string",
+								"unidad": "Grados celsius",
+								"requerido": false
+							}
+						]
+
+					}, {
+
+						"humedadRelativa": [{
+								"id": "periodo",
+								"descripcion": "Hora de validez para la humedad relativa (01/02/03 .... /22/23)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Valor de la humedad relativa",
+								"tipo_datos": "string",
+								"unidad": "Tanto por ciento (%)",
+								"requerido": false
+							}
+						]
+
+
+					}, {
+						"viento": [{
+
+
+								"id": "periodo",
+								"descripcion": "Hora de validez para el viento (01/02/03 .... /22/23)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "direccion",
+								"descripcion": "Dirección del viento (N/Norte, NE/Nordeste, E/Este, SE/Sudeste, S/Sur, SO/Suroeste, O/Oeste, NO/Noroeste, C/Calma",
+								"tipo_datos": "string",
+								"requerido": false
+							}, 
+							
+							{
+								"id": "velocidad",
+								"descripcion": "Velocidad del viento",
+								"tipo_datos": "string",
+								"unidad": "Kilómetros por hora (km/h)",
+								"requerido": false
+							}
+						]
+
+					}, {
+
+						"rachaMax": [{
+								"id": "periodo",
+								"descripcion": "Periodo de validez para la racha máxima (00-06, 06-12, 12-18, 18-24, 00-12, 00-24, 12-24)",
+								"tipo_datos": "string",
+								"requerido": false
+							},
+
+							{
+								"id": "value",
+								"descripcion": "Valor de la Racha máxima",
+								"tipo_datos": "string",
+								"unidad": "Kilómetros por hora (km/h)",
+								"requerido": false
+							}]
+
+					}]
+
+			}]
+		}]
+
+}]
