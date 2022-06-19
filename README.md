@@ -29,10 +29,12 @@ Weather and overall control - noticeboard.properties
 The various APIs are called at intervals defined in the properties files.
 
 The project uses Maven for the build so even if you don't use Netbeans, other IDEs should understand it.  I struggled for a long time with re-structuring the original projects to include all the dependencies in one jar for easy deployment, but eventually gave up.  
-Deployment now means copying these things from NoticeBoard/target/ to your pi (assuming that's where it will run) 
+Deployment now means copying these things from NoticeBoard/target/ to your pi (assuming that's where it will run)
+<pre>
 a) the NoticeBoard-2.0-SNAPSHOT.jar and 
 b) the dependency-jars directory.
 plus the three config files updated with your own credentials for the various acccounts as mentioned above.
+</pre>
 
 The program is set up to auto-run when the Pi boots with these 4 lines in /etc/xdg/lxsession/LXDE-pi/autostart :
 
