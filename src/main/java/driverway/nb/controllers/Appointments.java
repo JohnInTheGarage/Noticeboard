@@ -171,7 +171,7 @@ public class Appointments {
 				continue;
 			}
 			reply.put(timestamp, items.get(timestamp));
-			LOGGER.debug("Found "+items.get(timestamp));
+			LOGGER.trace("Found "+items.get(timestamp));
 		}
 
 		return reply;
@@ -211,8 +211,5 @@ public class Appointments {
 		this.OK = OK;
 	}
 
-//	public void setScanner(CalendarScanner cs) {
-//		calendarScanner = cs;
-//	}
 
 }
