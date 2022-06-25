@@ -34,7 +34,7 @@ public class SatelliteImagePane extends Pane {
 	private PreferenceHelper ph;
 	private LocalDateTime imageTime;
 	private int requestInterval = 40;
-	private final int daysToKeep = 7;  //todo it make a parameter
+	private final int imageRetentionDays;
 	private static final Logger LOGGER = LogManager.getLogger();
 	private int tidyDate;
 	private boolean showingEUMet;
@@ -42,16 +42,23 @@ public class SatelliteImagePane extends Pane {
 	public SatelliteImagePane(PropertyLoader pl) {
 		
 		var EUmetProperties = pl.load("EUmet.properties");
-		String frequency = EUmetProperties.getProperty("RequestInterval");
-		requestInterval = Integer.parseInt(frequency, 10);
+		ph = PreferenceHelper.getInstance();
+		String value = EUmetProperties.getProperty("RequestInterval");
+		ph.putItem("EUmetRequestInterval", value);
+		requestInterval = Integer.parseInt(value, 10);
+		value = EUmetProperties.getProperty("imageRetentionDays");
+		ph.putItem("SatelliteImageRetention", value);
+		imageRetentionDays = Integer.parseInt(value, 10);
+		
 		ev = new EUmetViewer(EUmetProperties);
 		imagePath = EUmetProperties.getProperty("ImagePath");
 		LOGGER.trace("ImagePath " + imagePath);
-		ph = PreferenceHelper.getInstance();
-		ph.putItem("EUmetRequestInterval", frequency);
 		
 		fetchImage(LocalDateTime.now());
-		getChildren().add(satImageView);
+		if (satImageView != null){
+			//Started when no image available e.g. overnight
+			getChildren().add(satImageView);
+		}
 		showingEUMet = true;
 		dx = 5;
 		dy = 20;
@@ -123,7 +130,7 @@ public class SatelliteImagePane extends Pane {
 	}
 	
 	private void tidyFiles() {
-		SatImageRemover remover = new SatImageRemover(daysToKeep);
+		SatImageRemover remover = new SatImageRemover(imageRetentionDays);
 		try {
 			Files.walkFileTree(Paths.get(imagePath).getParent(), remover);
 		} catch (IOException ex) {
