@@ -39,6 +39,7 @@ public class AdminPane extends VBox {
 	
 	public Button btnQuit = new Button("Quit");
 	public Button btnBack = new Button("Back");
+	// Switch on/off two sets of Christmas decorations on another pi
 	public Button btnSwitch1  = new Button("Xmas-Front");
 	public Button btnSwitch2  = new Button("Xmas-North");
 	private boolean lightsNorth = false;
@@ -159,6 +160,11 @@ public class AdminPane extends VBox {
 		item6.put("value", ph.getItem("EUmetRequestInterval"));
 		items.add(item6);
 
+		Map<String, Object> item7 = new HashMap<>();
+		item7.put("parameter", "Satellite Image retention (days)");
+		item7.put("value", ph.getItem("SatelliteImageRetention"));
+		items.add(item7);
+
 		Map<String, Object> item = new HashMap<>();
 		item.put("parameter", "Forecast provider");
 		item.put("value", ph.getItem("forecastProvider"));
@@ -170,11 +176,11 @@ public class AdminPane extends VBox {
 		this.getChildren().add(tableView);
 		btnBack.addEventFilter(MouseEvent.MOUSE_CLICKED, eventBackHandler);
 		btnQuit.addEventFilter(MouseEvent.MOUSE_CLICKED, eventQuitHandler);
+		
 		btnSwitch1.addEventFilter(MouseEvent.MOUSE_CLICKED, eventSwitch1Handler);
 		btnSwitch2.addEventFilter(MouseEvent.MOUSE_CLICKED, eventSwitch2Handler);
 	}
 
-	
 	public void toggleFront(ActionEvent event) {
 		if (lightsFront) {
 			command = "garden?switch=off";
