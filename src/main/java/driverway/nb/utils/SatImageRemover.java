@@ -25,6 +25,7 @@ public class SatImageRemover extends SimpleFileVisitor<Path> {
 
 	public SatImageRemover(int limit) {
 		oldest = Instant.now().minus(limit, ChronoUnit.DAYS);
+		LOGGER.info("Oldest image to keep "+oldest.toString());
 	}
 
 	@Override
