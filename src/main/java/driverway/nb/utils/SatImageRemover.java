@@ -35,7 +35,7 @@ public class SatImageRemover extends SimpleFileVisitor<Path> {
 			try {
 				File f = filePath.toFile();
 				LOGGER.info("deleting " + f.getName());
-				f.delete();
+				/////f.delete();
 			} catch (Exception e) {
 				LOGGER.error("unable to remove file " + e.getMessage());
 			}
