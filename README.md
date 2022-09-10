@@ -1,5 +1,7 @@
 # Noticeboard
 
+Sept 2022 - Updated to include showing Astronomy Picture of the Day images (APOD) during evening hours.
+
 This is a project for a Raspberry Pi (with Arm7 cpu or better) and the official 7-inch touch-screen display.  It hangs on the wall in my hallway so it can be seen regularly.
 
 It shows weather forecast details from either the UK Met office API (https://www.metoffice.gov.uk/services/data/datapoint) 
