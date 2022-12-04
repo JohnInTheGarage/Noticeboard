@@ -2,8 +2,6 @@ package driverway.nb.controllers;
 
 import driverway.nb.screens.AdminPane;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.time.Duration;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -42,7 +40,7 @@ public class ExitPaneController implements Initializable {
 			}
 			window.show();
 		} catch (Exception e) {
-			LOGGER.error("Show Periods problem", e.getMessage());
+			LOGGER.error("Show Admin problem", e.getMessage());
 		}
 
 	}

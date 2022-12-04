@@ -46,25 +46,37 @@ public class AdminPane extends VBox {
     public Button btnSwitch2 = new Button("Xmas-Side");
     private boolean lightsSide = false;
     private boolean lightsFront = false;
-    // MQTT parameters
+    
+    // MQTT parameters for switch buttons
     private MqttClient lightingClient = null;
     private MqttClient statusClient = null;
     private String command;
-    private String mqttServer = "tcp://192.168.0.246:1883";
-    private String topicLighting = "mqtt/GLS";
-    private String topicStatus = "mqtt/GLS/results";
-    private String username = "santa";
-    private String password = "XmasLights";
-    private String lightingId = "weatherPiCommands";
-    private String statusId = "weatherPiStatus";
+    private String mqttServer;
+    private String topicLighting;
+    private String topicStatus;
+    private String username;
+    private String password;
+    private String lightingId;
+    private String statusId;
     private int qos = 0;
 
     @SuppressWarnings("unchecked")
     public AdminPane(Scene thisScene) throws IOException {
 
+        callerScene = thisScene;
+        PreferenceHelper ph = PreferenceHelper.getInstance();
+        
         if (Xmas.SOON) {
             try {
                 if (statusClient == null) {
+                    mqttServer = ph.getItem("mqttServer");
+                    topicLighting = ph.getItem("topicLighting");
+                    topicStatus = ph.getItem("topicStatus");
+                    username = ph.getItem("username");
+                    password = ph.getItem("password");
+                    lightingId = ph.getItem("lightingId");
+                    statusId = ph.getItem("statusId");
+                    
                     lightingClient = new MqttClient(mqttServer, lightingId, new MemoryPersistence());
                     statusClient = new MqttClient(mqttServer, statusId, new MemoryPersistence());
                     // connect options
@@ -92,9 +104,6 @@ public class AdminPane extends VBox {
             btnSwitch1.setDisable(true);
             btnSwitch2.setDisable(true);
         }
-
-        callerScene = thisScene;
-        PreferenceHelper ph = PreferenceHelper.getInstance();
 
         this.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
@@ -129,7 +138,6 @@ public class AdminPane extends VBox {
             public void handle(MouseEvent event) {
                 toggleSide();
             }
-
         };
 
         HBox buttonsPane = new HBox();
