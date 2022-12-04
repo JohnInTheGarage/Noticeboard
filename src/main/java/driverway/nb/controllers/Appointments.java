@@ -160,11 +160,13 @@ public class Appointments {
 	/*
 	*	Map of timestamps and Appts this month excluding those in the past
 	*	(for list of appointments this month)
-	 */
+    *   (Now extended to following month so that, near the end of the current month
+    *   we get clues about next month
+	*/
 	public Map<LocalDateTime, String> getApptsByList(LocalDate whichMonth) {
 		Map<LocalDateTime, String> reply = new TreeMap<>();
 		LocalDate date1 = LocalDate.now();
-		LocalDate date2 = whichMonth.with(TemporalAdjusters.lastDayOfMonth());
+		LocalDate date2 = date1.plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
 		for (LocalDateTime timestamp : items.keySet()) {
 			if (timestamp.toLocalDate().isBefore(date1) || timestamp.toLocalDate().isAfter(date2)) {

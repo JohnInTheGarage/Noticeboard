@@ -119,7 +119,7 @@ public class CalendarScanner {
 			}
 			LocalDateTime ldt = LocalDateTime.parse(start, formatter);
 			calendarEvents.put(ldt, e.getSummary());
-			LOGGER.trace("From Google :" +ldt +" === "+e.getSummary()+ " ("+e.getStatus()+")");
+			//LOGGER.trace("From Google :" +ldt +" === "+e.getSummary()+ " ("+e.getStatus()+")");
 		}
 		return calendarEvents;
 	}

@@ -4,6 +4,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -47,15 +49,20 @@ public class ApptsPaneController implements Initializable {
 
 		ObservableList elements = FXCollections.observableArrayList();
 
+        String next = "";
 		for (LocalDateTime ts : data.keySet()) {
 			String hhmm = ts.format(DateTimeFormatter.ofPattern("HH:mm"));
 			int day = ts.getDayOfMonth();
 			String subject = data.get(ts);
+            if (ts.getMonth() != today.getMonth()){
+                next = ts.getMonth().getDisplayName(TextStyle.SHORT, Locale.UK)+" ";
+            }
+
 			//LOGGER.trace("found "+subject);
 			if (hhmm.equals("00:00")) {
-				elements.add("" + day + abbrv(day) + subject);
+				elements.add(next + day + abbrv(day) + subject);
 			} else {
-				elements.add("" + day + abbrv(day) + hhmm + " " + subject);
+				elements.add(next + day + abbrv(day) + hhmm + " " + subject);
 
 			}
 
