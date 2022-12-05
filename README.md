@@ -1,5 +1,10 @@
 # Noticeboard
 
+Dec 2022 - Changed Xmas lights to use MQTT instead of HTTP requests as its a lighter workload for the Pi 2 that controls
+the relays for the lights.
+Also adjusted the calendar's list of events to include next month's events.  Previously, in the last days of this month we 
+have no idea what's coming up soon.
+
 Sept 2022 - Updated to include showing Astronomy Picture of the Day images (APOD) during evening hours.
 
 This is a project for a Raspberry Pi (with Arm7 cpu or better) and the official 7-inch touch-screen display.  It hangs on the wall in my hallway so it can be seen regularly.

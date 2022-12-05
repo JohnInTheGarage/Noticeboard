@@ -70,15 +70,15 @@ public class DashboardScreen extends HBox {
 		LOGGER.trace("-----------------Dashboard begins ----------------");
 		//URL fxmlLocation = getClass().getResource("/clockPane.fxml");
 		//FXMLLoader clockLoadr =  new FXMLLoader(fxmlLocation);
-		URL fxmlResource = getClass().getResource("/clockPane.fxml");
+		//URL fxmlResource = getClass().getResource("/clockPane.fxml");
 		
 		FXMLLoader clockLoader = new FXMLLoader(getClass().getResource("/clockPane.fxml"));
 		clockController = new ClockPaneController();
 		clockLoader.setController(clockController);
 		clockPane = clockLoader.load();
 
-		fxmlResource = getClass().getResource("/exitPane.fxml");
-		exitPane = FXMLLoader.load(fxmlResource );     // was : ("/exitPane.fxml"));
+        URL	fxmlResource = getClass().getResource("/exitPane.fxml");
+		exitPane = FXMLLoader.load(fxmlResource );   
 
 		FXMLLoader weatherLoader = new FXMLLoader(getClass().getResource("/weatherPane.fxml"));
 		weatherController = new WeatherPaneController();
