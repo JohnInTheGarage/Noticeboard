@@ -1,10 +1,11 @@
 package driverway.nb.screens;
 
 import driverway.nb.utils.PreferenceHelper;
-import driverway.nb.utils.Xmas;
+import driverway.nb.utils.MqttHelper;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,13 +23,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 /**
  *
@@ -44,62 +38,17 @@ public class AdminPane extends VBox {
     // Switch on/off two sets of Christmas decorations on another pi
     public Button btnSwitch1 = new Button("Xmas-Front");
     public Button btnSwitch2 = new Button("Xmas-Side");
-    private boolean lightsSide = false;
-    private boolean lightsFront = false;
-    
-    // MQTT parameters for switch buttons
-    private MqttClient lightingClient = null;
-    private MqttClient statusClient = null;
-    private String command;
-    private String mqttServer;
-    private String topicLighting;
-    private String topicStatus;
-    private String username;
-    private String password;
-    private String lightingId;
-    private String statusId;
-    private int qos = 0;
+    private boolean light1;
+    private boolean light2;
+    MqttHelper mqHelper;
 
     @SuppressWarnings("unchecked")
-    public AdminPane(Scene thisScene) throws IOException {
+    public AdminPane(Scene thisScene, MqttHelper mq) throws IOException {
 
+        mqHelper = mq;
         callerScene = thisScene;
         PreferenceHelper ph = PreferenceHelper.getInstance();
-        
-        if (Xmas.SOON) {
-            try {
-                if (statusClient == null) {
-                    mqttServer = ph.getItem("mqttServer");
-                    topicLighting = ph.getItem("topicLighting");
-                    topicStatus = ph.getItem("topicStatus");
-                    username = ph.getItem("username");
-                    password = ph.getItem("password");
-                    lightingId = ph.getItem("lightingId");
-                    statusId = ph.getItem("statusId");
-                    
-                    lightingClient = new MqttClient(mqttServer, lightingId, new MemoryPersistence());
-                    statusClient = new MqttClient(mqttServer, statusId, new MemoryPersistence());
-                    // connect options
-                    MqttConnectOptions options = new MqttConnectOptions();
-                    options.setUserName(username);
-                    options.setPassword(password.toCharArray());
-                    options.setConnectionTimeout(60);
-                    options.setKeepAliveInterval(60);
-                    options.setAutomaticReconnect(true);
-                    options.setCleanSession(true);
-                    options.setConnectionTimeout(10);
-                    lightingClient.connect(options);
-                    setUpStatusClient();
-                    statusClient.connect(options);
-                    statusClient.subscribe(topicStatus, qos);
-
-                    LOGGER.info("Lighting Client connected :" + lightingClient.isConnected());
-                    LOGGER.info("Status Client connected :" + statusClient.isConnected());
-                }
-            } catch (MqttException ex) {
-                LOGGER.info("MTQQ problems initialising :" + ex.getMessage());
-            }
-        } else {
+        if (ph.getItem("mqttSwitches").isBlank()) {
             //Hide buttons if not using as switches; in my case exterior xmas lights.
             btnSwitch1.setDisable(true);
             btnSwitch2.setDisable(true);
@@ -129,14 +78,17 @@ public class AdminPane extends VBox {
         EventHandler<MouseEvent> eventSwitch1Handler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                toggleFront();
+                mqHelper.sendLightsCommand("front");
+                checkLights();
+
             }
         };
 
         EventHandler<MouseEvent> eventSwitch2Handler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                toggleSide();
+                mqHelper.sendLightsCommand("side");
+                checkLights();
             }
         };
 
@@ -159,7 +111,6 @@ public class AdminPane extends VBox {
         paramColumn.setCellValueFactory(new MapValueFactory<>("parameter"));
         TableColumn<Map, String> valueColumn = new TableColumn<>("Value");
         valueColumn.setCellValueFactory(new MapValueFactory<>("value"));
-
         tableView.getColumns().add(paramColumn);
         tableView.getColumns().add(valueColumn);
 
@@ -215,97 +166,27 @@ public class AdminPane extends VBox {
 
         btnSwitch1.addEventFilter(MouseEvent.MOUSE_CLICKED, eventSwitch1Handler);
         btnSwitch2.addEventFilter(MouseEvent.MOUSE_CLICKED, eventSwitch2Handler);
-    }
 
-    public void toggleFront() {
-        if (lightsFront) {
-            command = "front off";
-        } else {
-            command = "front on";
-        }
-        sendLightsCommand(command);
+        // update buttons to reflect status of lights
+        checkLights();
 
     }
 
-    public void toggleSide() {
-        if (lightsSide) {
-            command = "side off";
-        } else {
-            command = "side on";
-        }
-        sendLightsCommand(command);
-    }
-
-    /*
-    * Changing from HTTP to MQTT means no immeadiate response is available
-    * so no return-type
-     */
-    private void sendLightsCommand(String command) {
-        //LOGGER.info("Sending lighting command :" + command + " via MQTT");
-
-        //MqttMessage 
+    private void checkLights() {
         try {
-            byte[] payload = command.getBytes();
-            MqttMessage msg = new MqttMessage(payload);
-            msg.setQos(qos);
-            msg.setRetained(false);
-            lightingClient.publish(topicLighting, msg);
-        } catch (MqttException ex) {
-            LOGGER.info("MQTT problem while sending :" + ex.getMessage());
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {
         }
-    }
+        boolean[] lights = mqHelper.queryLights();
 
-    private void setUpStatusClient() {
-        statusClient.setCallback(new MqttCallback() {
+        String colour = lights[1] ? "-fx-background-color:limegreen; " : "-fx-background-color:coral; ";
+        btnSwitch1.setStyle(colour);
+        light1 = lights[1];
 
-            @Override
-            public void connectionLost(Throwable cause) {
-                LOGGER.info("MQTT connectionLost: " + cause.getMessage());
-            }
+        colour = lights[2] ? "-fx-background-color:limegreen; " : "-fx-background-color:coral; ";
+        btnSwitch2.setStyle(colour);
+        light2 = lights[2];
 
-            @Override
-            public void messageArrived(String topic, MqttMessage message) {
-                String messageContent = new String(message.getPayload());
-                //LOGGER.info("MQTT message received :" + messageContent);
-                decodeMessage(messageContent);
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {
-            }
-
-            private void decodeMessage(String status) {
-
-                if (status.contains("front") || status.contains("side")) {
-                    //OK then
-                } else {
-                    LOGGER.info("MQTT status missing place name " + status);
-                    return;
-                }
-
-                if (status.contains(" on") || status.contains(" off")) {
-                    //OK then
-                } else {
-                    LOGGER.info("MQTT status missing switch status " + status);
-                    return;
-                }
-
-                boolean lit = status.contains(" on");
-                String colour = lit ? "-fx-background-color:limegreen; " : "-fx-background-color:coral; ";
-
-                if (status.contains("front")) {
-                    btnSwitch1.setStyle(colour);
-                    lightsFront = lit;
-                }
-
-                if (status.contains("side")) {
-                    btnSwitch2.setStyle(colour);
-                    lightsSide = lit;
-                }
-
-            }
-
-        });
     }
 
 }

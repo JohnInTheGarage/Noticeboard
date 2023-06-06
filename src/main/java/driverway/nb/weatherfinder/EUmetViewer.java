@@ -107,8 +107,8 @@ public class EUmetViewer {
         String imageUrl = "*";
 
         try {
-            
-            while (!imageUrl.contains("://apod.nasa.gov/apod/image") ) {
+
+            while (!imageUrl.contains("://apod.nasa.gov/apod/image")) {
                 // Request the JSON that has the image URL
                 request = HttpRequest.newBuilder()
                     //The 'count' parameter selects that many random images
@@ -122,14 +122,19 @@ public class EUmetViewer {
                     setStatusCode(response.statusCode());
                     LOGGER.trace("APOD API call StatusCode :" + getStatusCode());
                     //decode JSON
-                    if (getStatusCode() == 200) {
-                        JSONArray ja = new JSONArray((String) response.body());
-                        JSONObject jo = ja.getJSONObject(0);
-                        imageUrl = jo.getString("url");
+                    if (getStatusCode() != 200) {
+                        throw new Exception("bad status code from APOD call :" + getStatusCode());
                     }
+
                 }
             }
+            
+            // got the JSON apparently
+            JSONArray ja = new JSONArray((String) response.body());
+            JSONObject jo = ja.getJSONObject(0);
+            imageUrl = jo.getString("url");
             LOGGER.trace("new image at :" + imageUrl);
+            
             // Now request the image
             request = HttpRequest.newBuilder()
                 .uri(URI.create(imageUrl))
@@ -141,7 +146,7 @@ public class EUmetViewer {
                 File imageLocation = new File(imagePath);
                 ImageIO.write(bImage, "png", new File(imageLocation.getParent() + File.separator + "apod.png"));
             } else {
-                LOGGER.debug("Non-image response :" + response.body().toString()); 
+                LOGGER.debug("Non-image response :" + response.body().toString());
             }
 
         } catch (Exception e) {

@@ -25,20 +25,17 @@ public class UpdateFetcher implements Runnable {
     private LocalTime lastAppointments;
     private LocalTime nextForecast;
     private LocalTime nextAppointments;
-    private String providerCode;
-    private String googleId;
-    private PreferenceHelper ph;
+    private final String providerCode;
+    private final String googleId;
+    private final PreferenceHelper ph;
 
     //Minutes, not seconds
-    private int intervalForecast;
-    private int intervalAppointments;
+    private final int intervalForecast;
+    private final int intervalAppointments;
 
     /**
      *
-     * @param fcInterval
-     * @param apptsInterval Intervals can be left as zero in which case defaults
-     * are used If too-short intervals are supplied sensible minimums are used
-     * instead
+     * @param pl is a PropertyLoader
      */
     public UpdateFetcher(PropertyLoader pl) {
         ph = PreferenceHelper.getInstance();
@@ -59,13 +56,12 @@ public class UpdateFetcher implements Runnable {
         googleId = nbProperties.getProperty("GoogleId");
 
         //MQTT properties for use in Admin page
+        ph.putItem("mqttSwitches", nbProperties.getProperty("mqttSwitches"));
         ph.putItem("mqttServer", nbProperties.getProperty("mqttServer"));
         ph.putItem("topicLighting", nbProperties.getProperty("topicLighting"));
-        ph.putItem("topicStatus", nbProperties.getProperty("topicStatus"));
         ph.putItem("username", nbProperties.getProperty("username"));
         ph.putItem("password", nbProperties.getProperty("password"));
         ph.putItem("lightingId", nbProperties.getProperty("lightingId"));
-        ph.putItem("statusId", nbProperties.getProperty("statusId"));
 
     }
 
