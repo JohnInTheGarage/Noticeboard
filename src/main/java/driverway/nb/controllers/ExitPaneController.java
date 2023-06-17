@@ -28,22 +28,35 @@ public class ExitPaneController implements Initializable {
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-        mq = new MqttHelper();
+        try{
+            mq = new MqttHelper();
+        }
+        catch (Exception e) {
+            LOGGER.error("unable to start MqttHelper ", e);
+        }
 	}
 
 	public void showAdmin(ActionEvent event) {
 		try {
+            //LOGGER.trace("ShowAdmin >> ");
 			Scene thisScene = ((Node) event.getSource()).getScene();
-			Stage window = (Stage) thisScene.getWindow();
-			AdminPane adminScreen = new AdminPane(thisScene, mq);
-
+			//LOGGER.trace("ShowAdmin >> got the scene");
+            Stage window = (Stage) thisScene.getWindow();
+			//LOGGER.trace("ShowAdmin >> got the window");
+            AdminPane adminScreen = new AdminPane(thisScene, mq);
+            //LOGGER.trace("ShowAdmin >> got admin pane");
             window.setScene(new Scene(adminScreen, 800, 480));
+            //LOGGER.trace("ShowAdmin >> set the scene");
 			if (System.getProperty("os.arch").equals("arm")) {
 				window.setFullScreen(true);
+                //LOGGER.trace("ShowAdmin >> set fullscreen");
 			}
+            
 			window.show();
+            //LOGGER.trace("ShowAdmin >> Showing the window");
+            
 		} catch (Exception e) {
-			LOGGER.error("Show Admin problem", e.getMessage());
+			LOGGER.error("Show Admin problem :" + e.getMessage());
 		}
 
 	}

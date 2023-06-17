@@ -4,20 +4,12 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80" prefWidth="250" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="driverway.nb.controllers.ExitPaneController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80" prefWidth="250" 
+      xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="driverway.nb.controllers.ExitPaneController">
    <children>
-      <!-- Moved to admin page Button fx:id="btnNorth" layoutX="89.0" layoutY="24.0" mnemonicParsing="false" onAction="#toggleNorth" text="Xmas1">
-         <font>
-            <Font size="17.0" />
-         </font>
-      </Button>
-          
-      <Button fx:id="btnFront" layoutX="7.0" layoutY="24.0" mnemonicParsing="false" onAction="#toggleFront" text="Xmas2" textFill="#0d0d0d">          
-         <font>
-            <Font size="17.0" />
-         </font>
-      </Button-->
-      <Button fx:id="btnAdmin" layoutX="150.0" layoutY="27.0" mnemonicParsing="false" onAction="#showAdmin" text="Admin" />
+
+       <Button fx:id="btnAdmin" layoutX="150.0" layoutY="27.0" mnemonicParsing="false" onAction="#showAdmin" text="Admin" />
       
    </children>
 </Pane>

@@ -22,8 +22,10 @@ The display is done with JavaFX and I build with Netbeans 12.4 on a separate PC 
 
 To use this properly, you will need to have or set up, your own accounts with the API providers that you use.  The api credentials are then put in text files for the program to use at runtime.  To locate those text files a system property must be defined :
 
+Probably easiest to update /etc/environment with:
+
 <pre>
-  export NBPROPERTIES=&lt;your preferred location&gt;
+NBPROPERTIES=&lt;your preferred location&gt;
 </pre>
 
 

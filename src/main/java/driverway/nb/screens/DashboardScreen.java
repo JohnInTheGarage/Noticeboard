@@ -1,5 +1,6 @@
 package driverway.nb.screens;
 
+import driverway.nb.controllers.ExitPaneController;
 import driverway.nb.controllers.UpdateFetcher;
 import driverway.nb.controllers.ApptsPaneController;
 import driverway.nb.controllers.WeatherPaneController;
@@ -32,6 +33,7 @@ public class DashboardScreen extends HBox {
 	private int prevAppointments = -1;
 	private int prevForecast = -1;
 
+    private ExitPaneController exitController;
 	private ClockPaneController clockController;
 	private CalendarGridPaneController calendarController;
 	private ApptsPaneController apptsController;
@@ -78,8 +80,13 @@ public class DashboardScreen extends HBox {
 		clockPane = clockLoader.load();
 
         URL	fxmlResource = getClass().getResource("/exitPane.fxml");
-		exitPane = FXMLLoader.load(fxmlResource );   
+        exitPane = FXMLLoader.load(fxmlResource );   
 
+/*
+        FXMLLoader exitLoader = new FXMLLoader(getClass().getResource("/exitPane.fxml"));
+        exitController = new ExitPaneController();
+        exitPane = exitLoader.load();
+*/                
 		FXMLLoader weatherLoader = new FXMLLoader(getClass().getResource("/weatherPane.fxml"));
 		weatherController = new WeatherPaneController();
 		weatherLoader.setController(weatherController);

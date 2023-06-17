@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import driverway.nb.utils.PreferenceHelper;
+import java.util.logging.Level;
 
 /**
  *
@@ -75,14 +76,13 @@ public class EUmetViewer {
             BufferedImage bImage = collectImage(request);
 
             if (bImage != null) {
-                File imageLocation = new File(imagePath);
-                ImageIO.write(bImage, "png", imageLocation);
+                saveImage(bImage, imagePath);
                 //Copy with timestamp
                 LocalDateTime rightNow = LocalDateTime.now();
                 ph.putItem("lastSatellite", rightNow.toString());
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
                 String timestamp = rightNow.format(formatter);
-                ImageIO.write(bImage, "png", new File(imageLocation.getParent() + File.separator + timestamp + ".png"));
+                saveImage(bImage, imagePath + File.separator + timestamp + ".png");
                 bytes = null;
             }
 
@@ -100,15 +100,18 @@ public class EUmetViewer {
      * @param imagePath 
      * A two-stage process; first get some JSON with image details, 
      * then get the image from the Url held in it.
+     * In case of failure, try this https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY 
+     * to see if its your problem or someone else's
      */
     public void callApodAPI(String imagePath) {
         HttpResponse<?> response = null;
         HttpRequest request;
-        String imageUrl = "*";
+        String imageUrl;
+        int retryDelayMS = 1000;
 
         try {
 
-            while (!imageUrl.contains("://apod.nasa.gov/apod/image")) {
+            while (getStatusCode() != 200) {
                 // Request the JSON that has the image URL
                 request = HttpRequest.newBuilder()
                     //The 'count' parameter selects that many random images
@@ -123,7 +126,9 @@ public class EUmetViewer {
                     LOGGER.trace("APOD API call StatusCode :" + getStatusCode());
                     //decode JSON
                     if (getStatusCode() != 200) {
-                        throw new Exception("bad status code from APOD call :" + getStatusCode());
+                        Thread.sleep(retryDelayMS);
+                        retryDelayMS += 2000;
+                        LOGGER.error("bad status code from APOD call :" + getStatusCode());
                     }
 
                 }
@@ -143,8 +148,7 @@ public class EUmetViewer {
 
             BufferedImage bImage = collectImage(request);
             if (bImage != null) {
-                File imageLocation = new File(imagePath);
-                ImageIO.write(bImage, "png", new File(imageLocation.getParent() + File.separator + "apod.png"));
+                saveImage(bImage,  imagePath + File.separator + "apod.png");
             } else {
                 LOGGER.debug("Non-image response :" + response.body().toString());
             }
@@ -246,4 +250,12 @@ public class EUmetViewer {
 
     }
 
+    private void saveImage(BufferedImage what, String where){
+        try {
+            File imageLocation = new File(where);
+            ImageIO.write(what, "png", imageLocation);
+        } catch (IOException ex) {
+            LOGGER.error("Unable to save image "+ ex.getMessage());
+        }
+    }
 }
