@@ -20,6 +20,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -89,7 +90,7 @@ public class App extends Application {
         SatelliteImagePane satImagePane = new SatelliteImagePane(pl);
         satImagePane.setId(SAT_ID);
 
-        /*  Touch equates to Mouse-click on my touchscreen
+        //  Touch equates to Mouse-click on my touchscreen
 		satImagePane.setOnTouchPressed(new EventHandler<TouchEvent>() {
 			public void handle(TouchEvent event) {
 				ObservableList<Node> childs = stack.getChildren();
@@ -100,14 +101,15 @@ public class App extends Application {
 			}
 
 		});
-         */
+         // * /
+         
         satImagePane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 ObservableList<Node> childs = stack.getChildren();
                 var backPane = childs.get(0);
                 backPane.toFront();
                 hideTimestamp = null;
-                //LOGGER.trace("++++++++ this was Mouse Event +++++++++");
+                LOGGER.trace("++++++++ this was Mouse Event +++++++++");
             }
 
         });

@@ -21,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import driverway.nb.utils.PreferenceHelper;
-import java.util.logging.Level;
 
 /**
  *
@@ -123,36 +122,41 @@ public class EUmetViewer {
                 response = httpClient.send(request, BodyHandlers.ofString());
                 if (response != null) {
                     setStatusCode(response.statusCode());
-                    LOGGER.trace("APOD API call StatusCode :" + getStatusCode());
                     //decode JSON
                     if (getStatusCode() != 200) {
                         Thread.sleep(retryDelayMS);
                         retryDelayMS += 2000;
-                        LOGGER.error("bad status code from APOD call :" + getStatusCode());
+                        LOGGER.error("bad status code from APOD call, addding 2 sec pause:" + getStatusCode());
                     }
 
+                } else {
+                    LOGGER.info("APOD >> response is null, adding 2 sec pause");
+                    Thread.sleep(retryDelayMS);
+                    retryDelayMS += 2000;
                 }
             }
-            
             // got the JSON apparently
-            JSONArray ja = new JSONArray((String) response.body());
-            JSONObject jo = ja.getJSONObject(0);
-            imageUrl = jo.getString("url");
-            LOGGER.trace("new image at :" + imageUrl);
-            
-            // Now request the image
-            request = HttpRequest.newBuilder()
-                .uri(URI.create(imageUrl))
-                .GET()
-                .build();
 
-            BufferedImage bImage = collectImage(request);
-            if (bImage != null) {
-                saveImage(bImage,  imagePath + File.separator + "apod.png");
-            } else {
-                LOGGER.debug("Non-image response :" + response.body().toString());
+            if (response != null) {
+                JSONArray ja = new JSONArray((String) response.body());
+                JSONObject jo = ja.getJSONObject(0);
+                imageUrl = jo.getString("url");
+                LOGGER.trace("new image at :" + imageUrl);
+
+                // Now request the image
+                request = HttpRequest.newBuilder()
+                    .uri(URI.create(imageUrl))
+                    .GET()
+                    .build();
+
+                BufferedImage bImage = collectImage(request);
+
+                if (bImage != null) {
+                    saveImage(bImage, imagePath);
+                } else {
+                    LOGGER.debug("Non-image response :" + response.body().toString());
+                }
             }
-
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -250,12 +254,12 @@ public class EUmetViewer {
 
     }
 
-    private void saveImage(BufferedImage what, String where){
+    private void saveImage(BufferedImage what, String where) {
         try {
             File imageLocation = new File(where);
             ImageIO.write(what, "png", imageLocation);
         } catch (IOException ex) {
-            LOGGER.error("Unable to save image "+ ex.getMessage());
+            LOGGER.error("Unable to save image (" + where + ") " + ex.getMessage());
         }
     }
 }
