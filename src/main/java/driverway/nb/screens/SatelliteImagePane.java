@@ -92,7 +92,7 @@ public class SatelliteImagePane extends Pane {
 	private void handleImageUpdate(String imageLocation) {
 		screenSaverView = new ImageView();
 		showingEUMet = true;
-		LOGGER.trace("fetching satellite image");
+		
 		imageTime = LocalDateTime.now();
 		try {
 			if (ev.getStatusCode() == 200) {

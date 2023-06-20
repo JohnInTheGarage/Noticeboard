@@ -14,6 +14,7 @@ import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -101,7 +102,7 @@ public class App extends Application {
 			}
 
 		});
-         // * /
+         
          
         satImagePane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
@@ -118,6 +119,7 @@ public class App extends Application {
         stack.getChildren().addAll(noticeboard, satImagePane);
 
         var scene = new Scene(stack, 800, 480);
+        scene.setCursor(Cursor.NONE);
         stage.setFullScreenExitHint("");
         if (System.getProperty("os.arch").equals("arm")) {
             stage.setFullScreen(true);

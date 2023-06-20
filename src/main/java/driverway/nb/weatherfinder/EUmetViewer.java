@@ -106,11 +106,11 @@ public class EUmetViewer {
         HttpResponse<?> response = null;
         HttpRequest request;
         String imageUrl;
+        boolean retry = true;
         int retryDelayMS = 1000;
 
         try {
-
-            while (getStatusCode() != 200) {
+            while (retry) {
                 // Request the JSON that has the image URL
                 request = HttpRequest.newBuilder()
                     //The 'count' parameter selects that many random images
@@ -126,31 +126,34 @@ public class EUmetViewer {
                     if (getStatusCode() != 200) {
                         Thread.sleep(retryDelayMS);
                         retryDelayMS += 2000;
-                        LOGGER.error("bad status code from APOD call, addding 2 sec pause:" + getStatusCode());
+                        LOGGER.error("bad status code from APOD call, adding 2 sec pause:" + getStatusCode());
                     }
 
                 } else {
-                    LOGGER.info("APOD >> response is null, adding 2 sec pause");
+                    LOGGER.info("APOD response is null, adding 2 sec pause");
                     Thread.sleep(retryDelayMS);
                     retryDelayMS += 2000;
                 }
+                retry = false;
             }
             // got the JSON apparently
-
+            
             if (response != null) {
                 JSONArray ja = new JSONArray((String) response.body());
                 JSONObject jo = ja.getJSONObject(0);
                 imageUrl = jo.getString("url");
                 LOGGER.trace("new image at :" + imageUrl);
-
+                if (imageUrl.contains("www.youtube.com")) {
+                    LOGGER.error("FFS APOD! Bloody YT links are no good to me");
+                    return;
+                }
                 // Now request the image
                 request = HttpRequest.newBuilder()
                     .uri(URI.create(imageUrl))
                     .GET()
                     .build();
-
                 BufferedImage bImage = collectImage(request);
-
+                
                 if (bImage != null) {
                     saveImage(bImage, imagePath);
                 } else {
