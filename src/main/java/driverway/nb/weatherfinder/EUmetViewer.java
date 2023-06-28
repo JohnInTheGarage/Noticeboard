@@ -40,14 +40,18 @@ public class EUmetViewer {
     private String tokenTimestamp;
     private int statusCode;
     private final HttpClient httpClient;
-    private PreferenceHelper ph;
-
+    private final PreferenceHelper ph;
+    private int retryDelayMS = 1000;
+    private File imageLocation;
+    private boolean EUmetRetainImages;
+    
     public EUmetViewer(Properties choices) {
         consumerKey = choices.getProperty("consumerKey");
         consumerSecret = choices.getProperty("consumerSecret");
         EUmetAuthenticationURL = choices.getProperty("EUmetAuthenticationURL");
         EUmetWMSURL = choices.getProperty("EUmetWMSURL");
         EUmetQuery = choices.getProperty("EUmetQuery");
+        EUmetRetainImages =  Boolean.parseBoolean(choices.getProperty("EUmetRetainImages"));
         ApodURL = choices.getProperty("ApodURL");
         NasaApiKey = choices.getProperty("NasaApiKey");
 
@@ -76,12 +80,15 @@ public class EUmetViewer {
 
             if (bImage != null) {
                 saveImage(bImage, imagePath);
-                //Copy with timestamp
                 LocalDateTime rightNow = LocalDateTime.now();
                 ph.putItem("lastSatellite", rightNow.toString());
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
-                String timestamp = rightNow.format(formatter);
-                saveImage(bImage, imagePath + File.separator + timestamp + ".png");
+
+                //Copy with timestamp
+                if (EUmetRetainImages) {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
+                    String timestamp = rightNow.format(formatter);
+                    saveImage(bImage, imageLocation.getParent() + File.separator + timestamp + ".png");
+                }
                 bytes = null;
             }
 
@@ -107,10 +114,10 @@ public class EUmetViewer {
         HttpRequest request;
         String imageUrl;
         boolean retry = true;
-        int retryDelayMS = 1000;
+        retryDelayMS = 1000;
 
         try {
-            while (retry) {
+            while (retry && retryDelayMS < 30000) {
                 // Request the JSON that has the image URL
                 request = HttpRequest.newBuilder()
                     //The 'count' parameter selects that many random images
@@ -124,15 +131,13 @@ public class EUmetViewer {
                     setStatusCode(response.statusCode());
                     //decode JSON
                     if (getStatusCode() != 200) {
-                        Thread.sleep(retryDelayMS);
-                        retryDelayMS += 2000;
-                        LOGGER.error("bad status code from APOD call, adding 2 sec pause:" + getStatusCode());
+                        apodError("bad status code from APOD call, adding 5 sec pause:" + getStatusCode());
+                        continue;
                     }
 
                 } else {
-                    LOGGER.info("APOD response is null, adding 2 sec pause");
-                    Thread.sleep(retryDelayMS);
-                    retryDelayMS += 2000;
+                    apodError("APOD response is null, adding 5 sec pause");
+                    continue;
                 }
                 retry = false;
             }
@@ -257,12 +262,25 @@ public class EUmetViewer {
 
     }
 
-    private void saveImage(BufferedImage what, String where) {
+    private String saveImage(BufferedImage what, String where) {
+        
         try {
-            File imageLocation = new File(where);
+            imageLocation = new File(where);
             ImageIO.write(what, "png", imageLocation);
+            
         } catch (IOException ex) {
             LOGGER.error("Unable to save image (" + where + ") " + ex.getMessage());
+        }
+        return imageLocation.getParent();
+    }
+    
+    private void apodError(String text) {
+        try {
+            LOGGER.error(text);
+            retryDelayMS += 5000;
+            Thread.sleep(retryDelayMS);
+        } catch (InterruptedException ex) {
+            //oh well, never mind
         }
     }
 }
