@@ -49,6 +49,10 @@ import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
  * 59 23 * * * /usr/bin/sudo sh -c "echo 1 > /sys/class/backlight/rpi_backlight/bl_power" 
  * 00 06 * * * /usr/bin/sudo sh -c "echo 0 > /sys/class/backlight/rpi_backlight/bl_power"
  *
+ * With Raspian Buster this changes to 
+ * 59 23 * * * /usr/bin/sudo sh -c "echo 1 > /sys/class/backlight/10-0045/bl_power" 
+ * 00 06 * * * /usr/bin/sudo sh -c "echo 0 > /sys/class/backlight/10-0045/bl_power"
+ * Which seems like a shit idea to me, and its not in the official docs.
  *
  * The Property files directory is stored in environment variable for use by
  * System.getenv("NBPROPERTIES") the variable is created with text in a .sh file

@@ -33,7 +33,6 @@ public class DashboardScreen extends HBox {
 	private int prevAppointments = -1;
 	private int prevForecast = -1;
 
-    private ExitPaneController exitController;
 	private ClockPaneController clockController;
 	private CalendarGridPaneController calendarController;
 	private ApptsPaneController apptsController;

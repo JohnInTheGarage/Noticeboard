@@ -15,58 +15,53 @@ import org.apache.logging.log4j.LogManager;
  */
 public class ClockPaneController implements Initializable {
 
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
 
-	private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
+    @FXML
+    public Label timeLabel;
+    @FXML
+    public Label dateLabel;
 
-	@FXML
-	public Label timeLabel;
-	@FXML
-	public Label dateLabel;
+    private String prevTime = " ";
+    private String prevDate;
+    private boolean newDay;
 
-	private String prevTime = " ";
-	private String prevDate;
-	private boolean newDay;
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+    }
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-	}
+    public void setClock(LocalDateTime rightNow) {
 
-	public void setClock(LocalDateTime rightNow) {
-		
-		String hhmm = rightNow.format(DateTimeFormatter.ofPattern("HH:mm"));
-		String date = rightNow.format(DateTimeFormatter.ofPattern("E, d MMM uuuu"));
-		if (!hhmm.equals(prevTime)) {
-			timeLabel.setText(hhmm);
-		}
+        String hhmm = rightNow.format(DateTimeFormatter.ofPattern("HH:mm"));
+        String date = rightNow.format(DateTimeFormatter.ofPattern("E, d MMM uuuu"));
+        if (!hhmm.equals(prevTime)) {
+            timeLabel.setText(hhmm);
+        }
 
-		setNewDay(false);
-		if (!date.equals(prevDate)) {
-			LOGGER.trace("new Date:" + date);
-			setNewDay(true);
-			dateLabel.setText(date);
-		}
-		
-		
-		prevTime = hhmm;
-		prevDate = date;
+        setNewDay(false);
+        if (!date.equals(prevDate)) {
+            LOGGER.trace("new Date:" + date);
+            setNewDay(true);
+            dateLabel.setText(date);
+        }
 
-	}
+        prevTime = hhmm;
+        prevDate = date;
 
+    }
 
-	/**
-	 * @return the newDay
-	 */
-	public boolean isNewDay() {
-		return newDay;
-	}
+    /**
+     * @return the newDay
+     */
+    public boolean isNewDay() {
+        return newDay;
+    }
 
-	/**
-	 * @param newDay the newDay to set
-	 */
-	public void setNewDay(boolean newDay) {
-		this.newDay = newDay;
-	}
-
-
+    /**
+     * @param newDay the newDay to set
+     */
+    public void setNewDay(boolean newDay) {
+        this.newDay = newDay;
+    }
 
 }
