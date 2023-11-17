@@ -59,9 +59,11 @@ public class UpdateFetcher implements Runnable {
         ph.putItem("mqttSwitches", nbProperties.getProperty("mqttSwitches"));
         ph.putItem("mqttServer", nbProperties.getProperty("mqttServer"));
         ph.putItem("topicLighting", nbProperties.getProperty("topicLighting"));
+        ph.putItem("topicStatus", nbProperties.getProperty("topicStatus"));
         ph.putItem("username", nbProperties.getProperty("username"));
         ph.putItem("password", nbProperties.getProperty("password"));
         ph.putItem("lightingId", nbProperties.getProperty("lightingId"));
+        ph.putItem("statusId", nbProperties.getProperty("statusId"));
 
     }
 

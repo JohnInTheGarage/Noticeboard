@@ -4,8 +4,6 @@
  */
 package driverway.nb.utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -64,10 +62,12 @@ public class MqttHelper {
             options.setCleanSession(true);
             options.setConnectionTimeout(10);
             lightingClient.connect(options);
+            lightingClient.subscribe(topicLighting, qos);
+            
             setUpStatusClient();
             statusClient.connect(options);
             statusClient.subscribe(topicStatus, qos);
-
+            
             LOGGER.info("Lighting Client connected :" + lightingClient.isConnected());
             LOGGER.info("Status Client connected :" + statusClient.isConnected());
 
