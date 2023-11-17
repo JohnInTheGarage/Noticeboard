@@ -43,9 +43,9 @@ public class AdminPane extends VBox {
     MqttHelper mqHelper;
 
     @SuppressWarnings("unchecked")
-    public AdminPane(Scene thisScene, MqttHelper mq) throws IOException {
+    public AdminPane(Scene thisScene) throws IOException {
 
-        mqHelper = mq;
+        mqHelper = new MqttHelper();
         callerScene = thisScene;
         PreferenceHelper ph = PreferenceHelper.getInstance();
         if (ph.getItem("mqttSwitches").isBlank()) {

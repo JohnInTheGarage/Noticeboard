@@ -1,0 +1,132 @@
+2023-11-17 11:38:16,233 INFO  (App.java:87) - Config File: /home/john/Projects/NetBeansProjects/GH_NoticeBoard/Noticeboard/target/classes/log4j2.xml
+2023-11-17 11:38:16,270 TRACE (DashboardScreen.java:70) - 
+2023-11-17 11:38:16,270 TRACE (DashboardScreen.java:71) - -----------------Dashboard begins ----------------
+2023-11-17 11:41:03,264 INFO  (App.java:87) - Config File: /home/john/Projects/NetBeansProjects/GH_NoticeBoard/Noticeboard/target/classes/log4j2.xml
+2023-11-17 11:41:03,294 TRACE (DashboardScreen.java:70) - 
+2023-11-17 11:41:03,294 TRACE (DashboardScreen.java:71) - -----------------Dashboard begins ----------------
+2023-11-17 11:41:30,971 INFO  (MqttHelper.java:75) - MTQQ problems initialising :MqttException
+2023-11-17 11:41:44,659 TRACE (PropertyLoader.java:33) - ------------- Properties loaded from /home/john/Projects/properties//noticeboard.properties
+2023-11-17 11:41:44,663 TRACE (PropertyLoader.java:41) - OpenWeatherBaseURL : https://api.openweathermap.org/data/2.5/onecall?lat=37.7443&lon=-0.8504&exclude=minutely&units=metric&appid=%s
+2023-11-17 11:41:44,663 TRACE (PropertyLoader.java:41) - password : XmasLights
+2023-11-17 11:41:44,663 TRACE (PropertyLoader.java:41) - UkMetOfficeClientSecret : <withheld>
+2023-11-17 11:41:44,663 TRACE (PropertyLoader.java:41) - statusId : weatherPiStatus
+2023-11-17 11:41:44,664 TRACE (PropertyLoader.java:41) - username : santa
+2023-11-17 11:41:44,664 TRACE (PropertyLoader.java:41) - AeMetArea : 73
+2023-11-17 11:41:44,664 TRACE (PropertyLoader.java:41) - UkMetOfficeClientId : 26fecf18-0d58-448d-9e94-bfad78649567
+2023-11-17 11:41:44,664 TRACE (PropertyLoader.java:41) - OpenWeatherApiKey : <your value here>
+2023-11-17 11:41:44,664 TRACE (PropertyLoader.java:41) - UkMetOfficeBaseURL : https://api-metoffice.apiconnect.ibmcloud.com/v0/forecasts/point/three-hourly?excludeParameterMetadata=&includeLocationName=NewHouse&latitude=%s&longitude=%s
+2023-11-17 11:41:44,665 TRACE (PropertyLoader.java:41) - ForecastRequestInterval : 60
+2023-11-17 11:41:44,665 TRACE (PropertyLoader.java:41) - GoogleRequestInterval : 90
+2023-11-17 11:41:44,665 TRACE (PropertyLoader.java:41) - WeatherProvider : uk
+2023-11-17 11:41:44,665 TRACE (PropertyLoader.java:41) - mqttSwitches : 1
+2023-11-17 11:41:44,666 TRACE (PropertyLoader.java:41) - lightingId : weatherPiCommands
+2023-11-17 11:41:44,666 TRACE (PropertyLoader.java:41) - GoogleId : knight.jpk@gmail.com
+2023-11-17 11:41:44,666 TRACE (PropertyLoader.java:41) - topicStatus : mqtt/GLS/results
+2023-11-17 11:41:44,666 TRACE (PropertyLoader.java:41) - AePrediccionPath : /prediccion/especifica/municipio/horaria/
+2023-11-17 11:41:44,666 TRACE (PropertyLoader.java:41) - AeMetBaseURL : https://opendata.aemet.es/opendata/api
+2023-11-17 11:41:44,667 TRACE (PropertyLoader.java:41) - LocalTimeZone : Europe/London
+2023-11-17 11:41:44,667 TRACE (PropertyLoader.java:41) - topicLighting : mqtt/GLS
+2023-11-17 11:41:44,667 TRACE (PropertyLoader.java:41) - UkMetOfficeLatitude : 52.306323
+2023-11-17 11:41:44,667 TRACE (PropertyLoader.java:41) - UkMetOfficeLongitude : -0.667918
+2023-11-17 11:41:44,667 TRACE (PropertyLoader.java:41) - mqttServer : tcp://192.168.0.230:1883
+2023-11-17 11:41:44,668 TRACE (PropertyLoader.java:41) - AeMunicipio : 30902
+2023-11-17 11:41:44,668 TRACE (PropertyLoader.java:41) - AeMetApiKey : ?api_key=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrbmlnaHQuanBrQGdtYWlsLmNvbSIsImp0aSI6ImUzNDJmYmI3LTUxMmItNDUxMS1hZjJlLWI4YmY2NDM0YjgxYSIsImlzcyI6IkFFTUVUIiwiaWF0IjoxNTg1NDEyNTkyLCJ1c2VySWQiOiJlMzQyZmJiNy01MTJiLTQ1MTEtYWYyZS1iOGJmNjQzNGI4MWEiLCJyb2xlIjoiIn0.iuuFRstYmsPiF8EQQGIHk4XNARYOxFgCuyPGndQtfmY
+2023-11-17 11:41:44,668 TRACE (PropertyLoader.java:41) - AeMetAvisosPath : /avisos_cap/ultimoelaborado/area/
+2023-11-17 11:41:44,668 TRACE (PropertyLoader.java:43) - ---------------------------------------------------------
+2023-11-17 11:41:44,877 TRACE (UpdateFetcher.java:55) - WeatherProvider for Forecast :uk
+2023-11-17 11:41:44,879 TRACE (DashboardScreen.java:65) - Noticeboard started
+2023-11-17 11:41:44,921 TRACE (WeatherReader.java:131) - calling UK weather api:https://api-metoffice.apiconnect.ibmcloud.com/v0/forecasts/point/three-hourly?excludeParameterMetadata=&includeLocationName=NewHouse&latitude=52.306323&longitude=-0.667918
+2023-11-17 11:41:46,649 TRACE (PropertyLoader.java:33) - ------------- Properties loaded from /home/john/Projects/properties//EUmet.properties
+2023-11-17 11:41:46,651 TRACE (PropertyLoader.java:41) - consumerSecret : <withheld>
+2023-11-17 11:41:46,652 TRACE (PropertyLoader.java:41) - EUmetQuery : ?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=backgrounds:ne_background,msg_fes:rgb_naturalenhncd&STYLES=&tiled=false&WIDTH=800&HEIGHT=960&CRS=EPSG%3A4326&BBOX=35,-17,61,20
+2023-11-17 11:41:46,653 TRACE (PropertyLoader.java:41) - imageRetentionDays : 3
+2023-11-17 11:41:46,654 TRACE (PropertyLoader.java:41) - ApodURL : https://api.nasa.gov/planetary/apod?count=1&api_key=
+2023-11-17 11:41:46,654 TRACE (PropertyLoader.java:41) - NasaApiKey : 3T1vTFouzKcCYE9wSFbzZWHE5blPRQvP3pGbYCpN
+2023-11-17 11:41:46,655 TRACE (PropertyLoader.java:41) - EUmetWMSURL : https://view.eumetsat.int/geoserver/ows
+2023-11-17 11:41:46,655 TRACE (PropertyLoader.java:41) - RequestInterval : 20
+2023-11-17 11:41:46,656 TRACE (PropertyLoader.java:41) - ImagePath : /home/john/test/
+2023-11-17 11:41:46,657 TRACE (PropertyLoader.java:41) - consumerKey : kJXtdkVxfhGofbbwAVzoktw9OpYa
+2023-11-17 11:41:46,659 TRACE (PropertyLoader.java:41) - EUmetAuthenticationURL : https://api.eumetsat.int/token
+2023-11-17 11:41:46,660 TRACE (PropertyLoader.java:43) - ---------------------------------------------------------
+2023-11-17 11:41:46,824 TRACE (SatelliteImagePane.java:58) - ImagePath /home/john/test/
+2023-11-17 11:41:46,825 DEBUG (SatelliteImagePane.java:114) - Oldest image to keep 2023-11-14T11:41:46.825108039Z
+2023-11-17 11:41:46,825 INFO  (SatelliteImagePane.java:124) - deleting /home/john/test/satellite.png
+2023-11-17 11:41:46,884 TRACE (CalendarScanner.java:88) - Inserted calendarList
+2023-11-17 11:41:47,990 TRACE (EUmetViewer.java:254) - Image collection StatusCode :200, image size :1029776
+2023-11-17 11:41:52,370 TRACE (App.java:117) - ++++++++ this was Mouse Event +++++++++
+2023-11-17 11:41:58,714 TRACE (ClockPaneController.java:43) - new Date:Fri, 17 Nov 2023
+2023-11-17 11:41:58,716 TRACE (CalendarGridPaneController.java:49) - calendar empty
+2023-11-17 11:41:58,723 TRACE (DashboardScreen.java:130) - New forecast found
+2023-11-17 11:41:58,731 TRACE (ApptsPaneController.java:99) - New appointments
+2023-11-17 11:41:58,732 TRACE (Appointments.java:176) - Found Whereby with Ted
+2023-11-17 11:41:58,732 TRACE (Appointments.java:176) - Found NGC1501 Blue Oyster
+2023-11-17 11:41:58,732 TRACE (Appointments.java:176) - Found Previous Cover pic change
+2023-11-17 11:41:58,732 TRACE (Appointments.java:176) - Found Cover Pic change
+2023-11-17 11:41:58,732 TRACE (Appointments.java:176) - Found Whereby with Ted
+2023-11-17 11:42:02,971 INFO  (MqttHelper.java:96) - MQTT problem while sending :Client is not connected
+2023-11-17 11:59:30,943 INFO  (App.java:87) - Config File: /home/john/Projects/NetBeansProjects/GH_NoticeBoard/Noticeboard/target/classes/log4j2.xml
+2023-11-17 11:59:30,967 TRACE (DashboardScreen.java:70) - 
+2023-11-17 11:59:30,967 TRACE (DashboardScreen.java:71) - -----------------Dashboard begins ----------------
+2023-11-17 11:59:38,234 TRACE (PropertyLoader.java:33) - ------------- Properties loaded from /home/john/Projects/properties//noticeboard.properties
+2023-11-17 11:59:38,235 TRACE (PropertyLoader.java:41) - OpenWeatherBaseURL : https://api.openweathermap.org/data/2.5/onecall?lat=37.7443&lon=-0.8504&exclude=minutely&units=metric&appid=%s
+2023-11-17 11:59:38,236 TRACE (PropertyLoader.java:41) - password : XmasLights
+2023-11-17 11:59:38,236 TRACE (PropertyLoader.java:41) - UkMetOfficeClientSecret : <withheld>
+2023-11-17 11:59:38,236 TRACE (PropertyLoader.java:41) - statusId : weatherPiStatus
+2023-11-17 11:59:38,237 TRACE (PropertyLoader.java:41) - username : santa
+2023-11-17 11:59:38,237 TRACE (PropertyLoader.java:41) - AeMetArea : 73
+2023-11-17 11:59:38,238 TRACE (PropertyLoader.java:41) - UkMetOfficeClientId : 26fecf18-0d58-448d-9e94-bfad78649567
+2023-11-17 11:59:38,238 TRACE (PropertyLoader.java:41) - OpenWeatherApiKey : <your value here>
+2023-11-17 11:59:38,238 TRACE (PropertyLoader.java:41) - UkMetOfficeBaseURL : https://api-metoffice.apiconnect.ibmcloud.com/v0/forecasts/point/three-hourly?excludeParameterMetadata=&includeLocationName=NewHouse&latitude=%s&longitude=%s
+2023-11-17 11:59:38,239 TRACE (PropertyLoader.java:41) - ForecastRequestInterval : 60
+2023-11-17 11:59:38,239 TRACE (PropertyLoader.java:41) - GoogleRequestInterval : 90
+2023-11-17 11:59:38,239 TRACE (PropertyLoader.java:41) - WeatherProvider : uk
+2023-11-17 11:59:38,239 TRACE (PropertyLoader.java:41) - mqttSwitches : 1
+2023-11-17 11:59:38,240 TRACE (PropertyLoader.java:41) - lightingId : weatherPiCommands
+2023-11-17 11:59:38,240 TRACE (PropertyLoader.java:41) - GoogleId : knight.jpk@gmail.com
+2023-11-17 11:59:38,240 TRACE (PropertyLoader.java:41) - topicStatus : mqtt/GLS/results
+2023-11-17 11:59:38,240 TRACE (PropertyLoader.java:41) - AePrediccionPath : /prediccion/especifica/municipio/horaria/
+2023-11-17 11:59:38,240 TRACE (PropertyLoader.java:41) - AeMetBaseURL : https://opendata.aemet.es/opendata/api
+2023-11-17 11:59:38,241 TRACE (PropertyLoader.java:41) - LocalTimeZone : Europe/London
+2023-11-17 11:59:38,241 TRACE (PropertyLoader.java:41) - topicLighting : mqtt/GLS
+2023-11-17 11:59:38,241 TRACE (PropertyLoader.java:41) - UkMetOfficeLatitude : 52.306323
+2023-11-17 11:59:38,241 TRACE (PropertyLoader.java:41) - UkMetOfficeLongitude : -0.667918
+2023-11-17 11:59:38,242 TRACE (PropertyLoader.java:41) - mqttServer : tcp://192.168.0.230:1883
+2023-11-17 11:59:38,242 TRACE (PropertyLoader.java:41) - AeMunicipio : 30902
+2023-11-17 11:59:38,242 TRACE (PropertyLoader.java:41) - AeMetApiKey : ?api_key=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrbmlnaHQuanBrQGdtYWlsLmNvbSIsImp0aSI6ImUzNDJmYmI3LTUxMmItNDUxMS1hZjJlLWI4YmY2NDM0YjgxYSIsImlzcyI6IkFFTUVUIiwiaWF0IjoxNTg1NDEyNTkyLCJ1c2VySWQiOiJlMzQyZmJiNy01MTJiLTQ1MTEtYWYyZS1iOGJmNjQzNGI4MWEiLCJyb2xlIjoiIn0.iuuFRstYmsPiF8EQQGIHk4XNARYOxFgCuyPGndQtfmY
+2023-11-17 11:59:38,242 TRACE (PropertyLoader.java:41) - AeMetAvisosPath : /avisos_cap/ultimoelaborado/area/
+2023-11-17 11:59:38,243 TRACE (PropertyLoader.java:43) - ---------------------------------------------------------
+2023-11-17 11:59:38,499 TRACE (UpdateFetcher.java:55) - WeatherProvider for Forecast :uk
+2023-11-17 11:59:38,501 TRACE (DashboardScreen.java:65) - Noticeboard started
+2023-11-17 11:59:38,503 TRACE (PropertyLoader.java:33) - ------------- Properties loaded from /home/john/Projects/properties//EUmet.properties
+2023-11-17 11:59:38,503 TRACE (PropertyLoader.java:41) - consumerSecret : <withheld>
+2023-11-17 11:59:38,503 TRACE (PropertyLoader.java:41) - EUmetQuery : ?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=backgrounds:ne_background,msg_fes:rgb_naturalenhncd&STYLES=&tiled=false&WIDTH=800&HEIGHT=960&CRS=EPSG%3A4326&BBOX=35,-17,61,20
+2023-11-17 11:59:38,504 TRACE (PropertyLoader.java:41) - imageRetentionDays : 3
+2023-11-17 11:59:38,504 TRACE (PropertyLoader.java:41) - ApodURL : https://api.nasa.gov/planetary/apod?count=1&api_key=
+2023-11-17 11:59:38,504 TRACE (PropertyLoader.java:41) - NasaApiKey : 3T1vTFouzKcCYE9wSFbzZWHE5blPRQvP3pGbYCpN
+2023-11-17 11:59:38,504 TRACE (PropertyLoader.java:41) - EUmetWMSURL : https://view.eumetsat.int/geoserver/ows
+2023-11-17 11:59:38,505 TRACE (PropertyLoader.java:41) - RequestInterval : 20
+2023-11-17 11:59:38,505 TRACE (PropertyLoader.java:41) - ImagePath : /home/john/test/
+2023-11-17 11:59:38,505 TRACE (PropertyLoader.java:41) - consumerKey : kJXtdkVxfhGofbbwAVzoktw9OpYa
+2023-11-17 11:59:38,505 TRACE (PropertyLoader.java:41) - EUmetAuthenticationURL : https://api.eumetsat.int/token
+2023-11-17 11:59:38,505 TRACE (PropertyLoader.java:43) - ---------------------------------------------------------
+2023-11-17 11:59:38,513 TRACE (SatelliteImagePane.java:58) - ImagePath /home/john/test/
+2023-11-17 11:59:38,514 DEBUG (SatelliteImagePane.java:114) - Oldest image to keep 2023-11-14T11:59:38.513451471Z
+2023-11-17 11:59:38,525 TRACE (WeatherReader.java:131) - calling UK weather api:https://api-metoffice.apiconnect.ibmcloud.com/v0/forecasts/point/three-hourly?excludeParameterMetadata=&includeLocationName=NewHouse&latitude=52.306323&longitude=-0.667918
+2023-11-17 11:59:39,925 TRACE (EUmetViewer.java:254) - Image collection StatusCode :200, image size :1009204
+2023-11-17 11:59:40,278 TRACE (CalendarScanner.java:88) - Inserted calendarList
+2023-11-17 11:59:49,739 TRACE (App.java:117) - ++++++++ this was Mouse Event +++++++++
+2023-11-17 11:59:50,627 TRACE (ClockPaneController.java:43) - new Date:Fri, 17 Nov 2023
+2023-11-17 11:59:50,630 TRACE (CalendarGridPaneController.java:49) - calendar empty
+2023-11-17 11:59:50,640 TRACE (DashboardScreen.java:130) - New forecast found
+2023-11-17 11:59:50,650 TRACE (ApptsPaneController.java:99) - New appointments
+2023-11-17 11:59:50,651 TRACE (Appointments.java:176) - Found Whereby with Ted
+2023-11-17 11:59:50,651 TRACE (Appointments.java:176) - Found NGC1501 Blue Oyster
+2023-11-17 11:59:50,651 TRACE (Appointments.java:176) - Found Previous Cover pic change
+2023-11-17 11:59:50,651 TRACE (Appointments.java:176) - Found Cover Pic change
+2023-11-17 11:59:50,651 TRACE (Appointments.java:176) - Found Whereby with Ted
+2023-11-17 12:00:13,419 INFO  (MqttHelper.java:71) - Lighting Client connected :true
+2023-11-17 12:00:13,423 INFO  (MqttHelper.java:72) - Status Client connected :true
+2023-11-17 12:00:35,332 INFO  (MqttHelper.java:111) - lights status message received :OK front on
+2023-11-17 12:02:48,315 INFO  (MqttHelper.java:111) - lights status message received :OK front off
+2023-11-17 12:02:51,641 INFO  (MqttHelper.java:111) - lights status message received :OK side on
+2023-11-17 12:05:10,048 INFO  (MqttHelper.java:111) - lights status message received :OK side off

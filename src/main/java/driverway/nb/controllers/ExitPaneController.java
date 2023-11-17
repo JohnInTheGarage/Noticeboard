@@ -21,19 +21,12 @@ import org.apache.logging.log4j.Logger;
 public class ExitPaneController implements Initializable {
 
 	private static final Logger LOGGER = LogManager.getLogger();
-    private MqttHelper mq;
     
 	@FXML
 	public Button btnAdmin;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-        try{
-            mq = new MqttHelper();
-        }
-        catch (Exception e) {
-            LOGGER.error("unable to start MqttHelper ", e);
-        }
 	}
 
 	public void showAdmin(ActionEvent event) {
@@ -43,7 +36,7 @@ public class ExitPaneController implements Initializable {
 			//LOGGER.trace("ShowAdmin >> got the scene");
             Stage window = (Stage) thisScene.getWindow();
 			//LOGGER.trace("ShowAdmin >> got the window");
-            AdminPane adminScreen = new AdminPane(thisScene, mq);
+            AdminPane adminScreen = new AdminPane(thisScene);
             //LOGGER.trace("ShowAdmin >> got admin pane");
             window.setScene(new Scene(adminScreen, 800, 480));
             //LOGGER.trace("ShowAdmin >> set the scene");
