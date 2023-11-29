@@ -18,10 +18,13 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
  *
  * @author john
  */
-public class MqttHelper {
+public final class MqttHelper {
 
     private static final Logger LOGGER = LogManager.getLogger();
-
+    
+    //Using singleton pattern to avoid confusing MQTT with multiple instances
+    private static MqttHelper INSTANCE;
+    
     // MQTT parameters for switch buttons
     private MqttClient lightingClient = null;
     private MqttClient statusClient = null;
@@ -37,7 +40,14 @@ public class MqttHelper {
     // indexing from 1 to match relay numbers
     boolean[] lights = new boolean[4];
 
-    public MqttHelper() {
+    public static MqttHelper getInstance(){
+		if (INSTANCE == null)
+            INSTANCE = new MqttHelper();
+		
+        return INSTANCE;
+	}
+    
+    private MqttHelper() {
 
         PreferenceHelper ph = PreferenceHelper.getInstance();
 

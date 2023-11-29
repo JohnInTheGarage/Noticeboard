@@ -40,12 +40,12 @@ public class AdminPane extends VBox {
     public Button btnSwitch2 = new Button("Xmas-Side");
     private boolean light1;
     private boolean light2;
-    MqttHelper mqHelper;
+    private final MqttHelper mqHelper;
 
     @SuppressWarnings("unchecked")
     public AdminPane(Scene thisScene) throws IOException {
 
-        mqHelper = new MqttHelper();
+        mqHelper = MqttHelper.getInstance();
         callerScene = thisScene;
         PreferenceHelper ph = PreferenceHelper.getInstance();
         if (ph.getItem("mqttSwitches").isBlank()) {
