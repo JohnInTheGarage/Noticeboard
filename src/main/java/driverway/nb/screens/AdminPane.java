@@ -35,11 +35,13 @@ public class AdminPane extends VBox {
 
     public Button btnQuit = new Button("Quit");
     public Button btnBack = new Button("Back");
-    // Switch on/off two sets of Christmas decorations on another pi
-    public Button btnSwitch1 = new Button("Xmas-Front");
-    public Button btnSwitch2 = new Button("Xmas-Side");
+    // Switch on/off Christmas decorations on another pi
+    public Button btnSwitch1 = new Button("Front");
+    public Button btnSwitch2 = new Button("Side");
+    public Button btnSwitch3 = new Button("Garage");
     private boolean light1;
     private boolean light2;
+    private boolean light3;
     private final MqttHelper mqHelper;
 
     @SuppressWarnings("unchecked")
@@ -52,6 +54,7 @@ public class AdminPane extends VBox {
             //Hide buttons if not using as switches; in my case exterior xmas lights.
             btnSwitch1.setDisable(true);
             btnSwitch2.setDisable(true);
+            btnSwitch3.setDisable(true);
         }
 
         this.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
@@ -92,15 +95,25 @@ public class AdminPane extends VBox {
             }
         };
 
+        EventHandler<MouseEvent> eventSwitch3Handler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                mqHelper.sendLightsCommand("garage");
+                checkLights();
+            }
+        };
+
+
         HBox buttonsPane = new HBox();
         buttonsPane.setMaxSize(500, 50);
         buttonsPane.setMinSize(500, 50);
-        buttonsPane.getChildren().addAll(btnBack, btnQuit, btnSwitch1, btnSwitch2);
+        buttonsPane.getChildren().addAll(btnBack, btnQuit, btnSwitch1, btnSwitch2, btnSwitch3);
 
         btnBack.setMinSize(100, 50);
         btnQuit.setMinSize(100, 50);
         btnSwitch1.setMinSize(100, 50);
         btnSwitch2.setMinSize(100, 50);
+        btnSwitch3.setMinSize(100, 50);
 
         Label label = new Label("Admin / Status page");
 
@@ -166,6 +179,7 @@ public class AdminPane extends VBox {
 
         btnSwitch1.addEventFilter(MouseEvent.MOUSE_CLICKED, eventSwitch1Handler);
         btnSwitch2.addEventFilter(MouseEvent.MOUSE_CLICKED, eventSwitch2Handler);
+        btnSwitch3.addEventFilter(MouseEvent.MOUSE_CLICKED, eventSwitch3Handler);
 
         // update buttons to reflect status of lights
         checkLights();
@@ -186,6 +200,10 @@ public class AdminPane extends VBox {
         colour = lights[2] ? "-fx-background-color:limegreen; " : "-fx-background-color:coral; ";
         btnSwitch2.setStyle(colour);
         light2 = lights[2];
+
+        colour = lights[3] ? "-fx-background-color:limegreen; " : "-fx-background-color:coral; ";
+        btnSwitch3.setStyle(colour);
+        light3 = lights[3];
 
     }
 

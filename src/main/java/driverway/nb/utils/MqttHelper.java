@@ -128,7 +128,9 @@ public final class MqttHelper {
 
             private void decodeMessage(String status) {
 
-                if (status.contains("front") || status.contains("side")) {
+                if (status.contains("front") 
+                || status.contains("side")
+                || status.contains("garage")) {
                     //OK then
                 } else {
                     LOGGER.info("MQTT status missing place name " + status);
@@ -150,6 +152,10 @@ public final class MqttHelper {
 
                 if (status.contains("side")) {
                     lights[2] = lit;
+                }
+
+                if (status.contains("garage")) {
+                    lights[3] = lit;
                 }
 
             }
