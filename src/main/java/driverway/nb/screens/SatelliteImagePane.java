@@ -85,7 +85,7 @@ public class SatelliteImagePane extends Pane {
 		}
 		
 		int fred = time.getHour();
-		if (fred > 7 && fred < 8) {
+		if (fred > 7 && fred < 18) {
 			imageLocation = imagePath +"satellite.png";
 			ev.callEUMetAPI(imageLocation);
 		} else {
