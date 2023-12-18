@@ -39,12 +39,20 @@ public class SatelliteImagePane extends Pane {
 	private int tidyDate;
 	private boolean showingEUMet;
     private final String imagePath;
+    private final String ApodURL;
+    private final String BlueMarbleURL;
+    private final String NasaApiKey;
+    // LCD screen size
     private final int expectedWidth = 1600;
     private final int expectedHeight = 960;
 
 	public SatelliteImagePane(PropertyLoader pl) {
 
 		var EUmetProperties = pl.load("EUmet.properties");
+        ApodURL = EUmetProperties.getProperty("ApodURL");
+        BlueMarbleURL = EUmetProperties.getProperty("BlueMarbleURL");
+        NasaApiKey = EUmetProperties.getProperty("NasaApiKey");
+
 		ph = PreferenceHelper.getInstance();
 		String value = EUmetProperties.getProperty("RequestInterval");
 		ph.putItem("EUmetRequestInterval", value);
@@ -75,15 +83,19 @@ public class SatelliteImagePane extends Pane {
 			tidyFiles(imagePath);
 			tidyDate = time.getDayOfMonth();
 		}
-
-		//satellite gets no images after dark
+		
 		int fred = time.getHour();
-		if (fred > 7 && fred < 18) {
+		if (fred > 7 && fred < 8) {
 			imageLocation = imagePath +"satellite.png";
 			ev.callEUMetAPI(imageLocation);
 		} else {
-			imageLocation = imagePath+"apod.png";
-			ev.callApodAPI(imageLocation);
+            //Alternative, since the EUMet satellite gets no images after dark
+			imageLocation = imagePath+"nasa.png";
+            if (BlueMarbleURL.contains("://")){
+                ev.callNasaImageApi(BlueMarbleURL, NasaApiKey, imageLocation, "image", true);
+            } else {
+                ev.callNasaImageApi(ApodURL, NasaApiKey, imageLocation, "url", false);
+            }
 		}
 		handleImageUpdate(imageLocation);
 

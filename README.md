@@ -1,5 +1,7 @@
 # Noticeboard
 
+Dec 2023 - Fixed bugs and added Nasa "BlueMarble" images
+
 Dec 2022 - Changed Xmas lights to use MQTT instead of HTTP requests as its a lighter workload for the Pi 2 that controls
 the relays for the lights.
 Also adjusted the calendar's list of events to include next month's events.  Previously, in the last days of this month we 

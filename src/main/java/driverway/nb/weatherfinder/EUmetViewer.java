@@ -33,8 +33,6 @@ public class EUmetViewer {
     private final String consumerSecret;
     private final String EUmetAuthenticationURL;
     private final String EUmetWMSURL;
-    private final String ApodURL;
-    private final String NasaApiKey;
     private String EUmetQuery;
     private String accessToken = "";
     private String tokenTimestamp;
@@ -43,7 +41,7 @@ public class EUmetViewer {
     private final PreferenceHelper ph;
     private int retryDelayMS = 1000;
     private File imageLocation;
-    private boolean EUmetRetainImages;
+    private final boolean EUmetRetainImages;
     
     public EUmetViewer(Properties choices) {
         consumerKey = choices.getProperty("consumerKey");
@@ -52,8 +50,6 @@ public class EUmetViewer {
         EUmetWMSURL = choices.getProperty("EUmetWMSURL");
         EUmetQuery = choices.getProperty("EUmetQuery");
         EUmetRetainImages =  Boolean.parseBoolean(choices.getProperty("EUmetRetainImages"));
-        ApodURL = choices.getProperty("ApodURL");
-        NasaApiKey = choices.getProperty("NasaApiKey");
 
         httpClient = HttpClient.newBuilder()
             .version(Version.HTTP_2)
@@ -109,13 +105,14 @@ public class EUmetViewer {
      * In case of failure, try this https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY 
      * to see if its your problem or someone else's
      */
-    public void callApodAPI(String imagePath) {
+    public void OLDcallApodAPI(String imagePath) {
         HttpResponse<?> response = null;
         HttpRequest request;
         String imageUrl;
         boolean retry = true;
         retryDelayMS = 1000;
-
+String ApodURL= "";
+String NasaApiKey= "";
         try {
             while (retry && retryDelayMS < 30000) {
                 // Request the JSON that has the image URL
@@ -171,6 +168,100 @@ public class EUmetViewer {
 
     }
 
+    /**
+    @param jsonUrl
+    @param apiKey
+    @param imagePath 
+    @param imageField 
+    * For NASA images, get some JSON, and find the image URL from it.
+    * Add the API key to the base URL using ? or & as appropriate (as APOD has "?count=1")
+    * For APOD, the image URL in the JSON is complete.
+    * For EPIC, the image URL is just a filename, plus we need to get the date as 3 separate fields and
+    * slot those 4 things into a subtly different URL.  
+    */
+    public void callNasaImageApi(String jsonUrl, String apiKey, String imagePath, String imageField, boolean epic) {
+        try {
+            LOGGER.trace(jsonUrl);
+            String joiner = jsonUrl.contains("?") ? "&api_key=" : "?api_key=";
+            String json = fetchNasaJson(jsonUrl + joiner + apiKey);
+            LOGGER.trace(json);
+            
+            JSONArray ja = new JSONArray(json);
+            JSONObject jo = ja.getJSONObject(0);
+            String imageUrl = jo.getString(imageField);
+            if (imageUrl.contains("www.youtube.com")) {
+                LOGGER.error("FFS Nasa! Bloody YT links are no good to me");
+                return;
+            }
+            
+            if (epic){
+                String temp = jo.getString("date");
+                String imageName = imageUrl;
+                String yyyy = temp.substring(0, 4);
+                String mm = temp.substring(5, 7);
+                String dd = temp.substring(8, 10);
+                imageUrl = String.format(
+                    "https://epic.gsfc.nasa.gov/archive/natural/%s/%s/%s/png/%s.png",
+                    yyyy, mm, dd, imageName);
+            }
+            LOGGER.trace("new image at :" + imageUrl);
+
+            // Now request the image
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(imageUrl))
+                .GET()
+                .build();
+            BufferedImage bImage = collectImage(request);
+
+            if (bImage != null) {
+                saveImage(bImage, imagePath);
+            }
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+
+    }
+    
+    
+    private String fetchNasaJson(String nasaURL){
+        
+        HttpRequest request;
+        retryDelayMS = -5000;
+        String json = "";
+        
+        try {
+            while (retryDelayMS < 30000) {
+                retryDelayMS += 5000;
+                Thread.sleep(retryDelayMS);
+                
+                // Request the JSON that has the image URL
+                request = HttpRequest.newBuilder()
+                    .uri(URI.create(nasaURL))
+                    .headers("Content-Type", "application/x-www-form-urlencoded")
+                    .GET()
+                    .build();
+
+                HttpResponse<?> response = httpClient.send(request, BodyHandlers.ofString());
+                if (response != null) {
+                    setStatusCode(response.statusCode());
+                    if (getStatusCode() != 200) {
+                        apodError("bad status code from APOD call, adding 5 sec pause:" + getStatusCode());
+                        continue;
+                    }
+                    json = (String)response.body();
+                    break;
+                } else {
+                    apodError("APOD response is null, adding 5 sec pause");
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        
+        return json;
+    }
+    
     private void restorePrefs() {
         ph.getItem("accessToken");
         tokenTimestamp = ph.getItem("tokenTimestamp");
