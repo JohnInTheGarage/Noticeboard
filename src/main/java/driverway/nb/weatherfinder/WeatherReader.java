@@ -4,9 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -33,11 +35,11 @@ public class WeatherReader {
 	private final String AePrediccionPath;
 	private final String AeMetAvisosPath;
 
-	private final String UkMetOfficeClientId;
-	private final String UkMetOfficeClientSecret;
+	private final String UkMetOfficeApiKey;
 	private final String UkMetOfficeLatitude;
 	private final String UkMetOfficeLongitude;
 	private final String UkMetOfficeBaseURL;
+    private final String UkMetOfficeParams;
 	private final HttpClient client = HttpClient.newHttpClient();
 	private AbstractWeatherDecoder wd;
 	private int avisosHour = -1;
@@ -55,8 +57,8 @@ public class WeatherReader {
 		timezone = choices.getProperty("LocalTimeZone", "Europe/London");
 
 		UkMetOfficeBaseURL = choices.getProperty("UkMetOfficeBaseURL");
-		UkMetOfficeClientId = choices.getProperty("UkMetOfficeClientId");
-		UkMetOfficeClientSecret = choices.getProperty("UkMetOfficeClientSecret");
+        UkMetOfficeParams = choices.getProperty("UkMetOfficeParams");
+		UkMetOfficeApiKey = choices.getProperty("UkMetOfficeApiKey");
 		UkMetOfficeLatitude = choices.getProperty("UkMetOfficeLatitude", "52.0");
 		UkMetOfficeLongitude = choices.getProperty("UkMetOfficeLongitude", "0.0");
 
@@ -87,9 +89,9 @@ public class WeatherReader {
 
 	public Forecast readWeather() {
 		Forecast fc = null;
-
+        String response = null;
 		try {
-			String response = getWeatherJSON();
+			response = getWeatherJSON();
 			if (provider.equalsIgnoreCase("ES")) {
 				fc = wd.decodeJSON(response);
 
@@ -102,12 +104,13 @@ public class WeatherReader {
 					LOGGER.trace("collected aviso xmls");
 				}
 
-			} else {
+			} else {               
 				fc = wd.decodeJSON(response);
 			}
 			fc.setOK(true);
 		} catch (Exception ex) {
 			LOGGER.error("Failed decoding ", ex);
+            LOGGER.info(response);
 		}
 
 		return fc;
@@ -127,7 +130,9 @@ public class WeatherReader {
 						json = callSpainAPI(apiURL, client);
 						break;
 					case ("UK"):
-						apiURL = String.format(UkMetOfficeBaseURL, UkMetOfficeLatitude, UkMetOfficeLongitude);
+						String params = String.format(UkMetOfficeParams, UkMetOfficeLatitude, UkMetOfficeLongitude);
+                        //Grrr I'm sure they somewhere said "encode the query string". But no. String encodedParams = URLEncoder.encode(params, StandardCharsets.UTF_8.toString());
+                        apiURL = UkMetOfficeBaseURL + "?" + params ; // encodedParams;
 						LOGGER.trace("calling UK weather api:" + apiURL);
 						json = callUKAPI(apiURL, client);
 						break;
@@ -147,7 +152,7 @@ public class WeatherReader {
 				}
 			}
 		}
-
+        
 		return json;
 
 	}
@@ -240,6 +245,7 @@ public class WeatherReader {
 
 	/**
 	 * @param avisos the alerts to set Only take local and non-Minor alerts
+     * @return an array of alerts
 	 */
 	public ArrayList<WeatherAlert> getOurAlerts(ArrayList<String> avisos) {
 		ArrayList<WeatherAlert> newAlerts = new ArrayList<>();
@@ -260,8 +266,7 @@ public class WeatherReader {
 	private String callUKAPI(String URL, HttpClient client) throws IOException, InterruptedException {
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(URI.create(URL))
-				.headers("x-ibm-client-id", UkMetOfficeClientId,
-						"x-ibm-client-secret", UkMetOfficeClientSecret,
+				.headers("apikey", UkMetOfficeApiKey,
 						"accept", "application/json")
 				.GET()
 				.build();

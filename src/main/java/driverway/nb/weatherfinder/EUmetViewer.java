@@ -42,14 +42,15 @@ public class EUmetViewer {
     private int retryDelayMS = 1000;
     private File imageLocation;
     private final boolean EUmetRetainImages;
-    
+    private JSONArray ja;
+
     public EUmetViewer(Properties choices) {
         consumerKey = choices.getProperty("consumerKey");
         consumerSecret = choices.getProperty("consumerSecret");
         EUmetAuthenticationURL = choices.getProperty("EUmetAuthenticationURL");
         EUmetWMSURL = choices.getProperty("EUmetWMSURL");
         EUmetQuery = choices.getProperty("EUmetQuery");
-        EUmetRetainImages =  Boolean.parseBoolean(choices.getProperty("EUmetRetainImages"));
+        EUmetRetainImages = Boolean.parseBoolean(choices.getProperty("EUmetRetainImages"));
 
         httpClient = HttpClient.newBuilder()
             .version(Version.HTTP_2)
@@ -57,6 +58,7 @@ public class EUmetViewer {
             .build();
         ph = PreferenceHelper.getInstance();
         restorePrefs();
+        ja = new JSONArray("[]");
     }
 
     public void callEUMetAPI(String imagePath) {
@@ -96,105 +98,41 @@ public class EUmetViewer {
         }
 
     }
-
+    
     /**
      * 
-     * @param imagePath 
-     * A two-stage process; first get some JSON with image details, 
-     * then get the image from the Url held in it.
-     * In case of failure, try this https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY 
-     * to see if its your problem or someone else's
-     */
-    public void OLDcallApodAPI(String imagePath) {
-        HttpResponse<?> response = null;
-        HttpRequest request;
-        String imageUrl;
-        boolean retry = true;
-        retryDelayMS = 1000;
-String ApodURL= "";
-String NasaApiKey= "";
-        try {
-            while (retry && retryDelayMS < 30000) {
-                // Request the JSON that has the image URL
-                request = HttpRequest.newBuilder()
-                    //The 'count' parameter selects that many random images
-                    .uri(URI.create(ApodURL + NasaApiKey))
-                    .headers("Content-Type", "application/x-www-form-urlencoded")
-                    .GET()
-                    .build();
-
-                response = httpClient.send(request, BodyHandlers.ofString());
-                if (response != null) {
-                    setStatusCode(response.statusCode());
-                    //decode JSON
-                    if (getStatusCode() != 200) {
-                        apodError("bad status code from APOD call, adding 5 sec pause:" + getStatusCode());
-                        continue;
-                    }
-
-                } else {
-                    apodError("APOD response is null, adding 5 sec pause");
-                    continue;
-                }
-                retry = false;
-            }
-            // got the JSON apparently
-            
-            if (response != null) {
-                JSONArray ja = new JSONArray((String) response.body());
-                JSONObject jo = ja.getJSONObject(0);
-                imageUrl = jo.getString("url");
-                LOGGER.trace("new image at :" + imageUrl);
-                if (imageUrl.contains("www.youtube.com")) {
-                    LOGGER.error("FFS APOD! Bloody YT links are no good to me");
-                    return;
-                }
-                // Now request the image
-                request = HttpRequest.newBuilder()
-                    .uri(URI.create(imageUrl))
-                    .GET()
-                    .build();
-                BufferedImage bImage = collectImage(request);
-                
-                if (bImage != null) {
-                    saveImage(bImage, imagePath);
-                } else {
-                    LOGGER.debug("Non-image response :" + response.body().toString());
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-
-    }
-
-    /**
-    @param jsonUrl
+     * 
+    @param jsonURL
     @param apiKey
     @param imagePath 
     @param imageField 
-    * For NASA images, get some JSON, and find the image URL from it.
-    * Add the API key to the base URL using ? or & as appropriate (as APOD has "?count=1")
-    * For APOD, the image URL in the JSON is complete.
-    * For EPIC, the image URL is just a filename, plus we need to get the date as 3 separate fields and
-    * slot those 4 things into a subtly different URL.  
-    */
-    public void callNasaImageApi(String jsonUrl, String apiKey, String imagePath, String imageField, boolean epic) {
+    @param epic
+     * For NASA images, get some JSON, and find the image URL from it.
+     * Add the API key to the base URL using ? or & as appropriate (as APOD has "?count=n")
+     * For APOD, the image URL in the JSON is complete.
+     * For EPIC, the image URL is just a filename, plus we need to get the date as 3 separate fields and
+     * slot those 4 things into a subtly different URL.  
+     * 2023-12-21 Json fetched is assumed to have links to several images (previously just one).
+     * 
+     */
+    public void callNasaImageApi(String jsonURL, String apiKey, String imagePath, String imageField, boolean epic) {
         try {
-            LOGGER.trace(jsonUrl);
-            String joiner = jsonUrl.contains("?") ? "&api_key=" : "?api_key=";
-            String json = fetchNasaJson(jsonUrl + joiner + apiKey);
-            LOGGER.trace(json);
-            
-            JSONArray ja = new JSONArray(json);
+            if (ja.isEmpty()){
+                ja = new JSONArray(fetchNasaJson(jsonURL, apiKey));
+            }
+            // get the first image and then remove that from the array so next time we
+            // get the second image from the original list provided.
             JSONObject jo = ja.getJSONObject(0);
             String imageUrl = jo.getString(imageField);
+            ja.remove(0);
+
             if (imageUrl.contains("www.youtube.com")) {
                 LOGGER.error("FFS Nasa! Bloody YT links are no good to me");
                 return;
             }
-            
-            if (epic){
+
+            if (epic) {
+                // Grrr. The image path differs from the base url path. 
                 String temp = jo.getString("date");
                 String imageName = imageUrl;
                 String yyyy = temp.substring(0, 4);
@@ -222,22 +160,22 @@ String NasaApiKey= "";
         }
 
     }
-    
-    
-    private String fetchNasaJson(String nasaURL){
-        
+
+    public String fetchNasaJson(String nasaURL, String apiKey) {
+
         HttpRequest request;
         retryDelayMS = -5000;
         String json = "";
+        String joiner = nasaURL.contains("?") ? "&api_key=" : "?api_key=";
         
         try {
             while (retryDelayMS < 30000) {
                 retryDelayMS += 5000;
                 Thread.sleep(retryDelayMS);
-                
+
                 // Request the JSON that has the image URL
                 request = HttpRequest.newBuilder()
-                    .uri(URI.create(nasaURL))
+                    .uri(URI.create(nasaURL+joiner+apiKey))
                     .headers("Content-Type", "application/x-www-form-urlencoded")
                     .GET()
                     .build();
@@ -249,7 +187,7 @@ String NasaApiKey= "";
                         apodError("bad status code from APOD call, adding 5 sec pause:" + getStatusCode());
                         continue;
                     }
-                    json = (String)response.body();
+                    json = (String) response.body();
                     break;
                 } else {
                     apodError("APOD response is null, adding 5 sec pause");
@@ -258,10 +196,79 @@ String NasaApiKey= "";
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
-        
+
         return json;
     }
+/*
+    public void callNasaPhotoJournalRSS(String rssURL, String imagePath) {
+        //https://photojournal.jpl.nasa.gov/rss/targetFamily/Mars
+        // parse for "<hiresJpeg><![CDATA["
+        if (ja.isEmpty()){
+            ja = buildFakeJson(rssURL, "<hiresJpeg><![CDATA[");
+        }
+        
+        JSONObject jo = ja.getJSONObject(0);
+        String imageUrl = jo.getString("url");
+        ja.remove(0);
+
+        LOGGER.trace("new image at :" + imageUrl);
+
+        // Now request the image
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(imageUrl))
+                .GET()
+                .build();
+            BufferedImage bImage = collectImage(request);
+
+            if (bImage != null) {
+                saveImage(bImage, imagePath);
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+
+    }
     
+    private JSONArray buildFakeJson(String PhotoJournalURL, String imageField) {
+        String notJson = fetchNasaJson(PhotoJournalURL, "");
+        JSONArray imageList = new JSONArray();
+        int pos = notJson.indexOf(imageField);
+        int pos2 = 0;
+        int imageIx = 0;
+        while (pos > -1) {
+            pos += imageField.length();
+            pos2 = notJson.indexOf("]", pos);
+            String url = notJson.substring(pos, pos2).trim();
+            JSONObject j = new JSONObject();
+            j.put("url", url);
+            imageList.put(j);
+            imageIx++;
+            pos = notJson.indexOf(imageField, pos2);
+        }
+        return imageList;
+    }
+
+    private JSONArray buildHiRISEJson(String PhotoJournalURL, String imageField) {
+        String notJson = fetchNasaJson(PhotoJournalURL, "");
+        JSONArray imageList = new JSONArray();
+        int pos = notJson.indexOf(imageField);
+        int pos2 = 0;
+        int imageIx = 0;
+        while (pos > -1) {
+            pos += imageField.length();
+            pos2 = notJson.indexOf("]", pos);
+            String url = notJson.substring(pos, pos2).trim();
+            JSONObject j = new JSONObject();
+            j.put("url", url);
+            imageList.put(j);
+            imageIx++;
+            pos = notJson.indexOf(imageField, pos2);
+        }
+        return imageList;
+    
+    }
+*/
     private void restorePrefs() {
         ph.getItem("accessToken");
         tokenTimestamp = ph.getItem("tokenTimestamp");
@@ -278,7 +285,6 @@ String NasaApiKey= "";
     }
 
     private void getNewToken() {
-
         HttpResponse<String> response = null;
         HttpRequest request;
 
@@ -354,17 +360,17 @@ String NasaApiKey= "";
     }
 
     private String saveImage(BufferedImage what, String where) {
-        
+
         try {
             imageLocation = new File(where);
             ImageIO.write(what, "png", imageLocation);
-            
+
         } catch (IOException ex) {
             LOGGER.error("Unable to save image (" + where + ") " + ex.getMessage());
         }
         return imageLocation.getParent();
     }
-    
+
     private void apodError(String text) {
         try {
             LOGGER.error(text);

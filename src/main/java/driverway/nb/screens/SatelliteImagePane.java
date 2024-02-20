@@ -27,108 +27,124 @@ import org.apache.logging.log4j.Logger;
  */
 public class SatelliteImagePane extends Pane {
 
-	private ImageView screenSaverView;
-	private int x, y, dx, dy;
-	private int delta = 5;
-	private final EUmetViewer ev;
-	private final PreferenceHelper ph;
-	private LocalDateTime imageTime;
-	private final int requestInterval;
-	private final int imageRetentionDays;
-	private static final Logger LOGGER = LogManager.getLogger();
-	private int tidyDate;
-	private boolean showingEUMet;
+    private ImageView screenSaverView;
+    private int x, y, dx, dy;
+    private int delta = 5;
+    private final EUmetViewer ev;
+    private final PreferenceHelper ph;
+    private LocalDateTime imageTime;
+    private final int requestInterval;
+    private final int imageRetentionDays;
+    private static final Logger LOGGER = LogManager.getLogger();
+    private int tidyDate;
+    private boolean showingEUMet;
     private final String imagePath;
     private final String ApodURL;
     private final String BlueMarbleURL;
+    //private final String PhotoJournalURL;
     private final String NasaApiKey;
     // LCD screen size
     private final int expectedWidth = 1600;
     private final int expectedHeight = 960;
 
-	public SatelliteImagePane(PropertyLoader pl) {
+    public SatelliteImagePane(PropertyLoader pl) {
 
-		var EUmetProperties = pl.load("EUmet.properties");
+        var EUmetProperties = pl.load("EUmet.properties");
         ApodURL = EUmetProperties.getProperty("ApodURL");
         BlueMarbleURL = EUmetProperties.getProperty("BlueMarbleURL");
+        //PhotoJournalURL = EUmetProperties.getProperty("PhotoJournalURL");
         NasaApiKey = EUmetProperties.getProperty("NasaApiKey");
 
-		ph = PreferenceHelper.getInstance();
-		String value = EUmetProperties.getProperty("RequestInterval");
-		ph.putItem("EUmetRequestInterval", value);
-		requestInterval = Integer.parseInt(value, 10);
-		value = EUmetProperties.getProperty("imageRetentionDays");
-		ph.putItem("SatelliteImageRetention", value);
-		imageRetentionDays = Integer.parseInt(value, 10);
+        ph = PreferenceHelper.getInstance();
+        String value = EUmetProperties.getProperty("RequestInterval");
+        ph.putItem("EUmetRequestInterval", value);
+        requestInterval = Integer.parseInt(value, 10);
+        value = EUmetProperties.getProperty("imageRetentionDays");
+        ph.putItem("SatelliteImageRetention", value);
+        imageRetentionDays = Integer.parseInt(value, 10);
 
-		ev = new EUmetViewer(EUmetProperties);
-		imagePath = EUmetProperties.getProperty("ImagePath");
-		LOGGER.trace("ImagePath " + imagePath);
+        ev = new EUmetViewer(EUmetProperties);
+        imagePath = EUmetProperties.getProperty("ImagePath");
+        LOGGER.trace("ImagePath " + imagePath);
 
-		fetchImage(LocalDateTime.now());
-		if (screenSaverView != null) {
-			//Started when no image available e.g. overnight
-			getChildren().add(screenSaverView);
-		}
-		showingEUMet = true;
-		dx = 5;
-		dy = 20;
-	}
+        fetchImage(LocalDateTime.now());
+        if (screenSaverView != null) {
+            //Started when no image available e.g. overnight
+            getChildren().add(screenSaverView);
+        }
+        showingEUMet = true;
+        dx = 5;
+        dy = 20;
+    }
 
-	private void fetchImage(LocalDateTime time) {
+    private void fetchImage(LocalDateTime time) {
 
-		String imageLocation;
-		
-		if (time.getDayOfMonth() != tidyDate) {
-			tidyFiles(imagePath);
-			tidyDate = time.getDayOfMonth();
-		}
-		
-		int fred = time.getHour();
-		if (fred > 7 && fred < 18) {
-			imageLocation = imagePath +"satellite.png";
-			ev.callEUMetAPI(imageLocation);
-		} else {
-            //Alternative, since the EUMet satellite gets no images after dark
-			imageLocation = imagePath+"nasa.png";
-            if (BlueMarbleURL.contains("://")){
-                ev.callNasaImageApi(BlueMarbleURL, NasaApiKey, imageLocation, "image", true);
+        String imageLocation;
+
+        if (time.getDayOfMonth() != tidyDate) {
+            tidyFiles(imagePath);
+            tidyDate = time.getDayOfMonth();
+        }
+
+        int hour = time.getHour();
+        if (hour >= 6 && hour < 18) {
+            imageLocation = imagePath + "satellite.png";
+            ev.callEUMetAPI(imageLocation);
+            handleImageUpdate(imageLocation);
+        }
+        if (hour >= 18) {
+        //Alternative, since the EUMet satellite gets no images after dark
+        //and don't bother after midnight as the screen is probably turned off
+        imageLocation = imagePath + "nasaImage";
+        boolean eveningImage = false;
+        if (BlueMarbleURL.contains("://")) {
+            ev.callNasaImageApi(BlueMarbleURL, NasaApiKey, imageLocation, "image", true);
+            eveningImage = true;
+        }
+        if (ApodURL.contains("://")) {
+            ev.callNasaImageApi(ApodURL, NasaApiKey, imageLocation, "url", false);
+            eveningImage = true;
+        }
+//        if (PhotoJournalURL.contains("://")) {
+//            ev.callNasaPhotoJournalRSS(PhotoJournalURL, imageLocation );
+//            eveningImage = true;
+//        }
+        if (eveningImage) {
+            handleImageUpdate(imageLocation);
+        }
+
+        }
+    }
+
+
+    private void handleImageUpdate(String imageLocation) {
+        screenSaverView = new ImageView();
+        showingEUMet = true;
+
+        imageTime = LocalDateTime.now();
+        try {
+            if (ev.getStatusCode() == 200) {
+                loadScreenSaverImage(imageLocation, screenSaverView);
             } else {
-                ev.callNasaImageApi(ApodURL, NasaApiKey, imageLocation, "url", false);
+                LOGGER.trace("cannot get satellite image, status :" + ev.getStatusCode());
             }
-		}
-		handleImageUpdate(imageLocation);
-
-	}
-
-	private void handleImageUpdate(String imageLocation) {
-		screenSaverView = new ImageView();
-		showingEUMet = true;
-		
-		imageTime = LocalDateTime.now();
-		try {
-			if (ev.getStatusCode() == 200) {
-				loadScreenSaverImage(imageLocation, screenSaverView);
-			} else {
-				LOGGER.trace("cannot get satellite image, status :" + ev.getStatusCode());
-			}
-		} catch (Exception e) {
-			LOGGER.trace("Exception loading satellite image", e);
-		}
-	}
+        } catch (Exception e) {
+            LOGGER.trace("Exception loading satellite image", e);
+        }
+    }
 
 
     /*
     remove old files -anything in the images directory
-    */
-	private void tidyFiles(String directoryName) {
+     */
+    private void tidyFiles(String directoryName) {
         Instant oldest = Instant.now().minus(imageRetentionDays, ChronoUnit.DAYS);
-		LOGGER.debug("Oldest image to keep "+oldest.toString());
+        LOGGER.debug("Oldest image to keep " + oldest.toString());
         File imageDir = new File(directoryName);
-        
+
         if (imageDir.isDirectory()) {
             File[] candidates = imageDir.listFiles();
-            for (File f:candidates){
+            for (File f : candidates) {
                 try {
                     Path p = f.toPath();
                     BasicFileAttributes attrs = Files.readAttributes(p, BasicFileAttributes.class);
@@ -137,98 +153,98 @@ public class SatelliteImagePane extends Pane {
                         f.delete();
                     }
                 } catch (IOException ex) {
-                    LOGGER.error("Unable to delete images ",ex.getMessage());
+                    LOGGER.error("Unable to delete images ", ex.getMessage());
                 }
-                
+
             }
-		}
+        }
 
-	}
+    }
 
 
-	/*
+    /*
 	* left to right pans going down 1600 by 960 image
-	 */
-	public void slideImage1(LocalDateTime time) {
-		if (!showingEUMet) {	// only slide for Satellite image
-			return;
-		}
-		x += delta;
-		if (x > 800) {
-			x = 0;
-			y += delta;
-			if (y > 480) {
-				y = 0;
-				x = 0;
-			}
-		}
-		Rectangle2D viewportRect = new Rectangle2D(x, y, x + 800, y + 480);
-		screenSaverView.setViewport(viewportRect);
+     */
+    public void slideImage1(LocalDateTime time) {
+        if (!showingEUMet) {	// only slide for Satellite image
+            return;
+        }
+        x += delta;
+        if (x > 800) {
+            x = 0;
+            y += delta;
+            if (y > 480) {
+                y = 0;
+                x = 0;
+            }
+        }
+        Rectangle2D viewportRect = new Rectangle2D(x, y, x + 800, y + 480);
+        screenSaverView.setViewport(viewportRect);
 
-		if (time.isAfter(imageTime.plusMinutes(requestInterval))) {
-			fetchImage(time);
-		}
-		getChildren().remove(0);
-		getChildren().add(screenSaverView);
+        if (time.isAfter(imageTime.plusMinutes(requestInterval))) {
+            fetchImage(time);
+        }
+        getChildren().remove(0);
+        getChildren().add(screenSaverView);
 
-	}
+    }
 
-	/*
+    /*
 	* diagonal pans around 1600 by 960 image
-	 */
-	public void slideImage2(LocalDateTime time) {
-		if (!showingEUMet) {	// only slide for Satellite image
-			return;
-		}
+     */
+    public void slideImage2(LocalDateTime time) {
+        if (!showingEUMet) {	// only slide for Satellite image
+            return;
+        }
 
-		x += dx;
-		y += dy;
-		if (x > 400 || x < 0) {
-			dx = -dx;
-		}
-		if (y > 240 || y < 0) {
-			dy = -dy;
-		}
-		Rectangle2D viewportRect = new Rectangle2D(x, y, x + 1200, y + 720);
-		screenSaverView.setViewport(viewportRect);
+        x += dx;
+        y += dy;
+        if (x > 400 || x < 0) {
+            dx = -dx;
+        }
+        if (y > 240 || y < 0) {
+            dy = -dy;
+        }
+        Rectangle2D viewportRect = new Rectangle2D(x, y, x + 1200, y + 720);
+        screenSaverView.setViewport(viewportRect);
 
-		if (time.isAfter(imageTime.plusMinutes(requestInterval))) {
-			fetchImage(time);
-		}
-		getChildren().remove(0);
-		getChildren().add(screenSaverView);
+        if (time.isAfter(imageTime.plusMinutes(requestInterval))) {
+            fetchImage(time);
+        }
+        getChildren().remove(0);
+        getChildren().add(screenSaverView);
 
-	}
+    }
 
-	/*
+    /*
 	* Vertical pan down 800 by 960 image
-	 */
-	public void slideImage3(LocalDateTime time) {
-		if (!showingEUMet) {	// only slide for Satellite image
-			return;
-		}
+     */
+    public void slideImage3(LocalDateTime time) {
+        if (!showingEUMet) {	// only slide for Satellite image
+            return;
+        }
 
-		x = 0;
-		y += dy;
-		if (y > 475 || y < 10) {
-			dy = -dy;
-		}
-		Rectangle2D viewportRect = new Rectangle2D(x, y, 800, y + 480);
-		screenSaverView.setViewport(viewportRect);
+        x = 0;
+        y += dy;
+        if (y > 475 || y < 10) {
+            dy = -dy;
+        }
+        Rectangle2D viewportRect = new Rectangle2D(x, y, 800, y + 480);
+        screenSaverView.setViewport(viewportRect);
 
-		if (time.isAfter(imageTime.plusMinutes(requestInterval))) {
-			fetchImage(time);
-		}
-		getChildren().remove(0);
-		getChildren().add(screenSaverView);
+        if (time.isAfter(imageTime.plusMinutes(requestInterval))) {
+            fetchImage(time);
+        }
+        getChildren().remove(0);
+        getChildren().add(screenSaverView);
 
-	}
+    }
 
-	private void loadScreenSaverImage(String path, ImageView view) {
-		File file = new File(path);
-		Image satImage = new Image(file.toURI().toString(), expectedWidth, expectedHeight, true, true );
-		view.isCache();
-		view.setImage(satImage);
-	}
+    private void loadScreenSaverImage(String path, ImageView view) {
+        File file = new File(path);
+        Image satImage = new Image(file.toURI().toString(), expectedWidth, expectedHeight, true, true);
+        view.isCache();
+        view.setImage(satImage);
+    }
 
 }
