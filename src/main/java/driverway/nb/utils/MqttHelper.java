@@ -50,7 +50,10 @@ public final class MqttHelper {
     private MqttHelper() {
 
         PreferenceHelper ph = PreferenceHelper.getInstance();
-
+        if (ph.getItem("mqttSwitches").isBlank()) {
+            LOGGER.info("MTQQ Not used, mqttSwitches.isBlank() in properties file");
+            return;
+        }
         try {
             mqttServer = ph.getItem("mqttServer");
             topicLighting = ph.getItem("topicLighting");
