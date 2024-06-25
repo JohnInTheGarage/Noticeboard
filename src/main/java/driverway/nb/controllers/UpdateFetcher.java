@@ -6,6 +6,7 @@ import driverway.nb.weatherfinder.Forecast;
 import driverway.nb.weatherfinder.WeatherReader;
 
 import static java.lang.Thread.sleep;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import org.apache.logging.log4j.LogManager;
@@ -21,13 +22,14 @@ public class UpdateFetcher implements Runnable {
     private Forecast forecast;
     private Appointments apptsData;
     private final WeatherReader louiseLear;
-    private LocalTime lastForecast;
-    private LocalTime lastAppointments;
-    private LocalTime nextForecast;
-    private LocalTime nextAppointments;
+    private LocalDateTime lastForecast;
+    private LocalDateTime lastAppointments;
+    private LocalDateTime nextForecast;
+    private LocalDateTime nextAppointments;
     private final String providerCode;
     private final String googleId;
     private final PreferenceHelper ph;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     //Minutes, not seconds
     private final int intervalForecast;
@@ -70,26 +72,27 @@ public class UpdateFetcher implements Runnable {
     @Override
     public void run() {
         apptsData = new Appointments(googleId);
-        nextForecast = LocalTime.now().minusHours(1);
+        nextForecast = LocalDateTime.now().minusHours(1);
         nextAppointments = nextForecast;
-        // stop them being used before we are reqdy
-        lastForecast = LocalTime.now().plusHours(1);
+        // stop them being used before we are ready
+        lastForecast = LocalDateTime.now().plusHours(1);
         lastAppointments = lastForecast;
-
+        
+        
         while (true) {
-            LocalTime rightNow = LocalTime.now();
+            LocalDateTime rightNow = LocalDateTime.now();
             if (rightNow.isAfter(nextForecast)) {
                 findNewForecast();
                 lastForecast = rightNow;
-                nextForecast = rightNow.plusMinutes(intervalForecast);
-                ph.putItem("lastForecast", rightNow.toString());
+                nextForecast = rightNow.plusMinutes(intervalForecast);        
+                ph.putItem("lastForecast", rightNow.format(formatter));
             }
 
             if (rightNow.isAfter(nextAppointments)) {
                 findNewAppointments();
                 lastAppointments = rightNow;
                 nextAppointments = rightNow.plusMinutes(intervalAppointments);
-                ph.putItem("lastAppointments", rightNow.toString());
+                ph.putItem("lastAppointments", rightNow.format(formatter));
             }
             try {
                 //LOGGER.trace(toString());
@@ -162,14 +165,14 @@ public class UpdateFetcher implements Runnable {
         return (lastAppointments.getHour() * 100 + lastAppointments.getMinute());
     }
 
-    private String hhmm(LocalTime t) {
-        return t.format(DateTimeFormatter.ofPattern("HH:mm"));
+    private String timestamp(LocalDateTime t) {
+        return t.format(formatter);
     }
 
     @Override
     public String toString() {
         String thing = String.format("Updatefetcher- Appts- last :%s, next :%s Forecast- last :%s, next ;%s",
-            hhmm(lastAppointments), hhmm(nextAppointments), hhmm(lastForecast), hhmm(nextForecast));
+            timestamp(lastAppointments), timestamp(nextAppointments), timestamp(lastForecast), timestamp(nextForecast));
         return thing;
     }
 

@@ -79,11 +79,12 @@ public class EUmetViewer {
             if (bImage != null) {
                 saveImage(bImage, imagePath);
                 LocalDateTime rightNow = LocalDateTime.now();
-                ph.putItem("lastSatellite", rightNow.toString());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                ph.putItem("lastSatellite", rightNow.format(formatter));
 
                 //Copy with timestamp
                 if (EUmetRetainImages) {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
+                    formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
                     String timestamp = rightNow.format(formatter);
                     saveImage(bImage, imageLocation.getParent() + File.separator + timestamp + ".png");
                 }
