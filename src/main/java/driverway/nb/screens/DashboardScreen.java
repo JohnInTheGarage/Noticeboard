@@ -1,6 +1,5 @@
 package driverway.nb.screens;
 
-import driverway.nb.controllers.ExitPaneController;
 import driverway.nb.controllers.UpdateFetcher;
 import driverway.nb.controllers.ApptsPaneController;
 import driverway.nb.controllers.WeatherPaneController;
@@ -13,8 +12,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
 import javafx.scene.control.Alert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +40,7 @@ public class DashboardScreen extends HBox {
 	private ApptsPaneController apptsController;
 	private WeatherPaneController weatherController;
 	public UpdateFetcher updateFetcher;
+    private int phase = -1;
 
 	@SuppressWarnings("unchecked")
 	public DashboardScreen(PropertyLoader pl) throws IOException {
@@ -123,6 +126,7 @@ public class DashboardScreen extends HBox {
 			calendarController.changeDay();
 			calendarController.showCalendar();
 		}
+        
 	}
 
 	public void checkForecast() {

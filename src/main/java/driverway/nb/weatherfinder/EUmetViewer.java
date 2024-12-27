@@ -364,7 +364,9 @@ public class EUmetViewer {
 
         try {
             imageLocation = new File(where);
-            ImageIO.write(what, "png", imageLocation);
+            if (imageLocation.canWrite()){
+                ImageIO.write(what, "png", imageLocation);
+            }
 
         } catch (IOException ex) {
             LOGGER.error("Unable to save image (" + where + ") " + ex.getMessage());

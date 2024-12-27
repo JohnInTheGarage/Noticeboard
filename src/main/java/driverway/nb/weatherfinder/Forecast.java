@@ -19,6 +19,7 @@ public class Forecast {
 	private ArrayList<WeatherAlert> alerts;
 	private int todaysMaxRainProb;
 	private Double todaysMaxTemp;
+    private int moonPhaseNumber;
 	private final ZoneId zoneUTC = ZoneId.of("UTC");
 	private final ZoneId zoneSpain = ZoneId.of("Europe/Madrid");
 	private boolean OK;
@@ -133,7 +134,7 @@ public class Forecast {
 //		}
 //		LOGGER.debug("After Set today's numbers.");
 
-		if (periods.size() > 0) {
+		if (!periods.isEmpty()) {
 			// in case we removed them all as being too old - i.e. when today's forecast is not available
 
 			LocalDate dateStart = getPeriod(0).getStartDate();
@@ -149,5 +150,30 @@ public class Forecast {
 			}
 		}
 	}
+
+    /**
+     * @return the moonAge
+     */
+    public int getMoonPhaseNumber() {
+        return moonPhaseNumber;
+    }
+
+    /**
+     * @param moonAge the moonAge to set
+     */
+    public void setMoonAge(double moonAge) {
+        int test = (int)moonAge;  
+        // As the moonPhase images are not sceintifically distributed...
+        if (moonAge == 7.0){
+            this.moonPhaseNumber =  4;
+            return;
+        }
+        
+        if (moonAge == 21){
+            this.moonPhaseNumber = 10;
+        } else {
+            this.moonPhaseNumber = (int)moonAge/2;
+        }
+    }
 
 }

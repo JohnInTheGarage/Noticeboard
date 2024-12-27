@@ -4,12 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Properties;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -45,6 +45,7 @@ public class WeatherReader {
 	private int avisosHour = -1;
 	private final String OpenWeatherApiKey;
 	private final String OpenWeatherBaseURL;
+    private final String ViewBitsApi;
 
 	/**
 	 * Constructor expects the calling application to provide all the required
@@ -72,17 +73,12 @@ public class WeatherReader {
 
 		OpenWeatherBaseURL = choices.getProperty("OpenWeatherBaseURL");
 		OpenWeatherApiKey = choices.getProperty("OpenWeatherApiKey");
-
+        ViewBitsApi = choices.getProperty("ViewBitsApi");
+        
 		switch (provider.toUpperCase()) {
-			case "UK":
-				wd = new WeatherDecoderUK(timezone);
-				break;
-			case "ES":
-				wd = new WeatherDecoderES(timezone);
-				break;
-			case "OW":
-				wd = new WeatherDecoderOW(timezone);
-				break;
+			case "UK" -> wd = new WeatherDecoderUK(timezone);
+			case "ES" -> wd = new WeatherDecoderES(timezone);
+			case "OW" -> wd = new WeatherDecoderOW(timezone);
 		}
 
 	}
@@ -112,7 +108,7 @@ public class WeatherReader {
 			LOGGER.error("Failed decoding ", ex);
             LOGGER.info(response);
 		}
-
+        fc.setMoonAge( findMoonAge(LocalDate.now()) );
 		return fc;
 	}
 
@@ -287,5 +283,53 @@ public class WeatherReader {
 		return response.body();
 
 	}
+
+    private double findMoonAge(LocalDate today) {
+        double days = 0.0;
+        try {
+            String moonInfo = callOWAPI(ViewBitsApi, client);   // not really OpenWeather,, just a convenience call.
+            
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String thisDate = today.format(formatter);
+            int pos1 = moonInfo.indexOf(thisDate);
+            if (pos1 < 0){
+                return pos1;
+            }
+
+            int pos2 = moonInfo.indexOf("moon_age", pos1);
+            if (pos2 < 0){
+                return pos2;
+            }
+
+            pos1 = moonInfo.indexOf('"', pos2+9); // leading quote
+            if (pos1 < 0){
+                return pos1;
+            }
+
+            pos2 = moonInfo.indexOf(' ', pos1+1);  //trailing quote
+            days = Double.parseDouble(moonInfo.substring(pos1+1, pos2));
+        } catch (Exception e) {
+            LOGGER.error("Exception fetching Moon data ", e.getMessage());
+        }
+        
+        return days;
+    
+    /*
+        {
+        "date": "2024-12-23",
+        "timestamp": 1734912000,
+        "phase": "Last Quarter",
+        "illumination": "47.6%",
+        "moon_age": "22.37 days",
+        "moon_image": "https://api.viewbits.com/img/moon/phase-22.webp",
+        "moon_angle": 272.76,
+        "moon_distance": "334,258.03 km",
+        "sun_distance": "148,975,897.48 km",
+        "moon_sign": "Libra",
+        "moon_zodiac": "♎"
+        },
+    */
+
+    }
 
 }
