@@ -1,19 +1,11 @@
 package driverway.nb.weatherfinder;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import driverway.nb.utils.ApiCaller;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Properties;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,6 +17,7 @@ public class WeatherReader {
 
 	private static final Logger LOGGER = LogManager.getLogger();
 	private final XMLdecoder avisoDecoder;
+    private final ApiCaller apiCaller = new ApiCaller();
 	private final String provider;
 	private final String timezone;
 
@@ -40,13 +33,13 @@ public class WeatherReader {
 	private final String UkMetOfficeLongitude;
 	private final String UkMetOfficeBaseURL;
     private final String UkMetOfficeParams;
-	private final HttpClient client = HttpClient.newHttpClient();
 	private AbstractWeatherDecoder wd;
 	private int avisosHour = -1;
 	private final String OpenWeatherApiKey;
 	private final String OpenWeatherBaseURL;
     private final String ViewBitsApi;
-
+    private LocalDate lastMoonCall = null;
+    
 	/**
 	 * Constructor expects the calling application to provide all the required
 	 * properties
@@ -75,15 +68,18 @@ public class WeatherReader {
 		OpenWeatherApiKey = choices.getProperty("OpenWeatherApiKey");
         ViewBitsApi = choices.getProperty("ViewBitsApi");
         
+        
+        
 		switch (provider.toUpperCase()) {
 			case "UK" -> wd = new WeatherDecoderUK(timezone);
 			case "ES" -> wd = new WeatherDecoderES(timezone);
 			case "OW" -> wd = new WeatherDecoderOW(timezone);
 		}
+        
 
 	}
 
-	public Forecast readWeather() {
+	public Forecast readWeather(boolean callMoonApi) {
 		Forecast fc = null;
         String response = null;
 		try {
@@ -104,11 +100,13 @@ public class WeatherReader {
 				fc = wd.decodeJSON(response);
 			}
 			fc.setOK(true);
+            if (callMoonApi){
+                fc.setMoonAge( findMoonAge(LocalDate.now()) );    
+            }
 		} catch (Exception ex) {
 			LOGGER.error("Failed decoding ", ex);
             LOGGER.info(response);
 		}
-        fc.setMoonAge( findMoonAge(LocalDate.now()) );
 		return fc;
 	}
 
@@ -123,19 +121,19 @@ public class WeatherReader {
 					case ("ES"):
 						apiURL = AeMetBaseURL + AePrediccionPath + AeMetMunicipio + AeMetApiKey;
 						LOGGER.trace("calling ES weather api :" + apiURL);
-						json = callSpainAPI(apiURL, client);
+						json = apiCaller.callSpainAPI(apiURL);
 						break;
 					case ("UK"):
 						String params = String.format(UkMetOfficeParams, UkMetOfficeLatitude, UkMetOfficeLongitude);
                         //Grrr I'm sure they somewhere said "encode the query string". But no. String encodedParams = URLEncoder.encode(params, StandardCharsets.UTF_8.toString());
                         apiURL = UkMetOfficeBaseURL + "?" + params ; // encodedParams;
 						LOGGER.trace("calling UK weather api:" + apiURL);
-						json = callUKAPI(apiURL, client);
+						json = apiCaller.callUKAPI(apiURL, UkMetOfficeApiKey);
 						break;
 					case ("OW"):
 						apiURL = String.format(OpenWeatherBaseURL, OpenWeatherApiKey);
 						LOGGER.trace("calling OW weather api:" + apiURL);
-						json = callOWAPI(apiURL, client);
+						json = apiCaller.callOWAPI(apiURL);
 						break;
 
 				}
@@ -163,7 +161,7 @@ public class WeatherReader {
 		try {
 			if (provider.equalsIgnoreCase("es")) {
 				apiURL = AeMetBaseURL + AeMetAvisosPath + AeMetArea + AeMetApiKey;
-				xmls = callSpainAvisosAPI(apiURL, client);
+				xmls = apiCaller.callSpainAvisosAPI(apiURL);
 			} else {
 				//apiURL = String.format(UkMetOfficeBaseURL, UkMetOfficeLatitude, UkMetOfficeLongitude);
 				//LOGGER.trace("calling UK api:" + apiURL);
@@ -176,68 +174,7 @@ public class WeatherReader {
 
 	}
 
-	/*
-	* Gets the normal weather JSON response
-	 */
-	private String callSpainAPI(String URL, HttpClient client) throws IOException, InterruptedException {
-		HttpRequest request = locateSpainURL(URL, client);
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-		return response.body();
 
-	}
-
-	/*
-	* Gets the Set of XML files for weather warings
-	 */
-	private ArrayList<String> callSpainAvisosAPI(String URL, HttpClient client) throws IOException, InterruptedException {
-		HttpRequest request = locateSpainURL(URL, client);
-		//HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-		HttpResponse<byte[]> responseBytes = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-		ByteArrayInputStream bais = new ByteArrayInputStream(responseBytes.body());
-		ArrayList<String> xmls = unTarFile(bais);
-		return xmls;
-
-	}
-
-	private HttpRequest locateSpainURL(String URL, HttpClient client1) throws IOException, InterruptedException {
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(URL))
-				.build();
-		HttpResponse<String> response = client1.send(request, HttpResponse.BodyHandlers.ofString());
-		if (response.statusCode() != 200 || response.body().contains("exito") == false) {
-			throw new IOException("Status not 200 or 'exito' missing");
-		}
-		int pos1 = response.body().indexOf("datos");
-		int pos2 = response.body().indexOf(":", pos1);
-		pos1 = response.body().indexOf("\"", pos2);
-		pos1++;
-		pos2 = response.body().indexOf("\"", pos1);
-		URL = response.body().substring(pos1, pos2);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL))
-				.build();
-		return request;
-	}
-
-	/**
-	 *
-	 * @param tarFile
-	 * @param xmls
-	 * @throws IOException
-	 */
-	private ArrayList<String> unTarFile(ByteArrayInputStream tarFile) throws IOException {
-		TarArchiveInputStream tis = new TarArchiveInputStream((InputStream) tarFile);
-		TarArchiveEntry tarEntry = null;
-		ArrayList<String> xmls = new ArrayList<>();
-
-		while ((tarEntry = tis.getNextTarEntry()) != null) {
-			byte[] btis = tis.readAllBytes();
-			xmls.add(new String(btis));
-		}
-		tis.close();
-		return xmls;
-	}
 
 	/**
 	 * @param avisos the alerts to set Only take local and non-Minor alerts
@@ -259,35 +196,11 @@ public class WeatherReader {
 		return newAlerts;
 	}
 
-	private String callUKAPI(String URL, HttpClient client) throws IOException, InterruptedException {
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(URL))
-				.headers("apikey", UkMetOfficeApiKey,
-						"accept", "application/json")
-				.GET()
-				.build();
-
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-		return response.body();
-	}
-
-	private String callOWAPI(String URL, HttpClient client) throws IOException, InterruptedException {
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(URL))
-				.GET()
-				.build();
-
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-		return response.body();
-
-	}
 
     private double findMoonAge(LocalDate today) {
         double days = 0.0;
         try {
-            String moonInfo = callOWAPI(ViewBitsApi, client);   // not really OpenWeather,, just a convenience call.
+            String moonInfo = apiCaller.callOWAPI(ViewBitsApi);   // not really OpenWeather,, just a convenience call.
             
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String thisDate = today.format(formatter);
@@ -314,7 +227,7 @@ public class WeatherReader {
         
         return days;
     
-    /*
+    /* Response is an array of these 
         {
         "date": "2024-12-23",
         "timestamp": 1734912000,

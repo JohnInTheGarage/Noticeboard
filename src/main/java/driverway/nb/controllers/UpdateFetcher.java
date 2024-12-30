@@ -6,8 +6,8 @@ import driverway.nb.weatherfinder.Forecast;
 import driverway.nb.weatherfinder.WeatherReader;
 
 import static java.lang.Thread.sleep;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,6 +20,7 @@ public class UpdateFetcher implements Runnable {
 
     private static final Logger LOGGER = LogManager.getLogger();
     private Forecast forecast;
+    private LocalDate moonCallDate;
     private Appointments apptsData;
     private final WeatherReader louiseLear;
     private LocalDateTime lastForecast;
@@ -45,9 +46,10 @@ public class UpdateFetcher implements Runnable {
         String forecastFrequency = nbProperties.getProperty("ForecastRequestInterval");
         String appointmentsFrequency = nbProperties.getProperty("GoogleRequestInterval");
 
+        // intervals in minutes
         intervalForecast = Integer.parseInt(forecastFrequency, 10);
         intervalAppointments = Integer.parseInt(appointmentsFrequency, 10);
-
+                
         louiseLear = new WeatherReader(nbProperties);
         providerCode = nbProperties.getProperty("WeatherProvider", "OW");
         ph.putItem("forecastProvider", providerCode);
@@ -113,8 +115,16 @@ public class UpdateFetcher implements Runnable {
     }
 
     public void findNewForecast() {
-
-        Forecast latest = louiseLear.readWeather();
+        boolean allowMoonPhaseAPI = moonCallDate == null || (lastForecast.getDayOfMonth() != moonCallDate.getDayOfMonth());
+        Forecast latest = louiseLear.readWeather( allowMoonPhaseAPI );
+        
+        if (allowMoonPhaseAPI){
+            moonCallDate = LocalDate.now();
+        } else {
+            latest.setMoonAge( forecast.getMoonAge() );
+        }
+        
+        
         if (latest != null && latest.isOK()) {
             setForecast(latest);
             //LOGGER.trace("Forecast generated :" + latest.getHumanReadableRunDate());
@@ -122,6 +132,7 @@ public class UpdateFetcher implements Runnable {
             LOGGER.error("failed to get Forecast");
         }
     }
+
 
     /**
      * @return the forecast

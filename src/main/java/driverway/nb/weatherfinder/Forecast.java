@@ -19,7 +19,7 @@ public class Forecast {
 	private ArrayList<WeatherAlert> alerts;
 	private int todaysMaxRainProb;
 	private Double todaysMaxTemp;
-    private int moonPhaseNumber;
+    private double moonAge;
 	private final ZoneId zoneUTC = ZoneId.of("UTC");
 	private final ZoneId zoneSpain = ZoneId.of("Europe/Madrid");
 	private boolean OK;
@@ -155,25 +155,34 @@ public class Forecast {
      * @return the moonAge
      */
     public int getMoonPhaseNumber() {
-        return moonPhaseNumber;
+        int test = (int)moonAge;
+        int phaseNumber;
+        // As the moonPhase images are not sceintifically distributed...
+        if (test == 7){
+            phaseNumber =  4;
+        }
+        
+        if (test == 21){
+            phaseNumber = 10;
+        } else {
+            phaseNumber = (int)moonAge/2;
+            if (phaseNumber > 13){
+                phaseNumber = 13;
+            }
+        }
+        
+        return phaseNumber;
     }
 
+    public double getMoonAge(){
+        return this.moonAge;
+    }
+    
     /**
      * @param moonAge the moonAge to set
      */
     public void setMoonAge(double moonAge) {
-        int test = (int)moonAge;  
-        // As the moonPhase images are not sceintifically distributed...
-        if (moonAge == 7.0){
-            this.moonPhaseNumber =  4;
-            return;
-        }
-        
-        if (moonAge == 21){
-            this.moonPhaseNumber = 10;
-        } else {
-            this.moonPhaseNumber = (int)moonAge/2;
-        }
+        this.moonAge = moonAge;
     }
 
 }

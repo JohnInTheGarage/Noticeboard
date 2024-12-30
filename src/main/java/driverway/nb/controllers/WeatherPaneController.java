@@ -184,7 +184,7 @@ public class WeatherPaneController implements Initializable {
     public void setMoonPhase(int phase){
         
         if (phase < 0 || phase > 13){
-            LOGGER.error ("Moon phase out of 0-13 range, ignored");
+            LOGGER.error ("Moon phase out of 0-13 range, ignored ("+phase+")");
             return;
         }
          String x = moonPhase[phase];
