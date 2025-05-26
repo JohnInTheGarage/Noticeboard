@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
@@ -46,6 +47,8 @@ public class SatelliteImagePane extends Pane {
     // LCD screen size
     private final int expectedWidth = 1600;
     private final int expectedHeight = 960;
+    private LocalTime sunrise;
+    private LocalTime sunset;
 
     public SatelliteImagePane(PropertyLoader pl) {
 
@@ -54,7 +57,7 @@ public class SatelliteImagePane extends Pane {
         BlueMarbleURL = EUmetProperties.getProperty("BlueMarbleURL");
         //PhotoJournalURL = EUmetProperties.getProperty("PhotoJournalURL");
         NasaApiKey = EUmetProperties.getProperty("NasaApiKey");
-
+        
         ph = PreferenceHelper.getInstance();
         String value = EUmetProperties.getProperty("RequestInterval");
         ph.putItem("EUmetRequestInterval", value);
@@ -81,20 +84,30 @@ public class SatelliteImagePane extends Pane {
 
         String imageLocation;
 
+        // Handle a new day occurring - tidy up old files 
         if (time.getDayOfMonth() != tidyDate) {
             tidyFiles(imagePath);
             tidyDate = time.getDayOfMonth();
         }
+        
+        LocalTime lt = time.toLocalTime();
+        sunrise = LocalTime.parse( ph.getItem("sunrise"));
+        sunset = LocalTime.parse( ph.getItem("sunset"));
+        
+        if (lt.isBefore(sunrise)){
+            return;
+            // the screen is probably off anyway
+        }
 
-        int hour = time.getHour();
-        if (hour >= 6 && hour < 18) {
+        if (lt.isBefore(sunset)){
             imageLocation = imagePath + "satellite.png";
             ev.callEUMetAPI(imageLocation);
             handleImageUpdate(imageLocation);
+            return;
         }
-        if (hour >= 18) {
-        //Alternative, since the EUMet satellite gets no images after dark
-        //and don't bother after midnight as the screen is probably turned off
+
+        // After sunset, since the EUMet satellite gets no images after dark
+        // show APOD images
         imageLocation = imagePath + "nasaImage";
         boolean eveningImage = false;
         if (BlueMarbleURL.contains("://")) {
@@ -113,7 +126,7 @@ public class SatelliteImagePane extends Pane {
             handleImageUpdate(imageLocation);
         }
 
-        }
+        
     }
 
 

@@ -149,7 +149,6 @@ public class XMLdecoder {
 
 			};
 
-			//System.out.println(">>>" +aviso);
 			StringReader sr = new StringReader(aviso);
 			InputSource input = new InputSource(sr);
 			saxParser.parse(input, handler);
@@ -159,7 +158,6 @@ public class XMLdecoder {
 		}
 		alert.setLevel(severity);
 		alert.setText(String.format("%s\n %s - %s ", headline, onsetText, expiresText));  //,  description));
-		//System.out.println(alert.getText());
 		alert.setArea(areaDesc);
 
 		return alert;

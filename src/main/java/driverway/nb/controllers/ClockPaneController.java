@@ -60,7 +60,7 @@ public class ClockPaneController implements Initializable {
     /**
      * @param newDay the newDay to set
      */
-    public void setNewDay(boolean newDay) {
+    private void setNewDay(boolean newDay) {
         this.newDay = newDay;
     }
 

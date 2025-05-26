@@ -154,30 +154,10 @@ public class Forecast {
     /**
      * @return the moonAge
      */
-    public int getMoonPhaseNumber() {
-        int test = (int)moonAge;
-        int phaseNumber;
-        // As the moonPhase images are not sceintifically distributed...
-        if (test == 7){
-            phaseNumber =  4;
-        }
-        
-        if (test == 21){
-            phaseNumber = 10;
-        } else {
-            phaseNumber = (int)moonAge/2;
-            if (phaseNumber > 13){
-                phaseNumber = 13;
-            }
-        }
-        
-        return phaseNumber;
+    public double getMoonAge() {
+        return moonAge;
     }
 
-    public double getMoonAge(){
-        return this.moonAge;
-    }
-    
     /**
      * @param moonAge the moonAge to set
      */

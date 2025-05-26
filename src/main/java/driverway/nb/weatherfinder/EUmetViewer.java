@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import driverway.nb.utils.PreferenceHelper;
+import java.time.LocalTime;
 
 /**
  *
@@ -33,6 +34,7 @@ public class EUmetViewer {
     private final String consumerSecret;
     private final String EUmetAuthenticationURL;
     private final String EUmetWMSURL;
+    private final String sunSetApi;
     private String EUmetQuery;
     private String accessToken = "";
     private String tokenTimestamp;
@@ -51,6 +53,7 @@ public class EUmetViewer {
         EUmetWMSURL = choices.getProperty("EUmetWMSURL");
         EUmetQuery = choices.getProperty("EUmetQuery");
         EUmetRetainImages = Boolean.parseBoolean(choices.getProperty("EUmetRetainImages"));
+        sunSetApi = choices.getProperty("SunSetApi");
 
         httpClient = HttpClient.newBuilder()
             .version(Version.HTTP_2)
@@ -200,6 +203,138 @@ public class EUmetViewer {
 
         return json;
     }
+    private void restorePrefs() {
+        ph.getItem("accessToken");
+        tokenTimestamp = ph.getItem("tokenTimestamp");
+        try {
+            LocalDateTime lastTime = LocalDateTime.parse(tokenTimestamp, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1L);
+            if (accessToken == null || lastTime.isBefore(oneHourAgo)) {
+                getNewToken();
+            }
+        } catch (Exception e) { // date was garbage
+            getNewToken();
+        }
+
+    }
+
+    private void getNewToken() {
+        HttpResponse<String> response = null;
+        HttpRequest request;
+
+        String consumer = consumerKey + ":" + consumerSecret;
+        String base64Product = Base64.getEncoder().withoutPadding().encodeToString(consumer.getBytes());
+
+        request = HttpRequest.newBuilder().uri(URI.create(EUmetAuthenticationURL))
+            .headers("Content-Type", "application/x-www-form-urlencoded")
+            .headers("Authorization", "Basic " + base64Product)
+            .POST(BodyPublishers.ofString("grant_type=client_credentials")).build();
+
+        try {
+            response = httpClient.send(request, BodyHandlers.ofString());
+            JSONObject jo = new JSONObject(response.body());
+            accessToken = jo.getString("access_token");
+            tokenTimestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            ph.putItem("accessToken", accessToken);
+            ph.putItem("tokenTimestamp", tokenTimestamp);
+
+        } catch (IOException | InterruptedException ex) {
+            LOGGER.error("response code :" + response.statusCode());
+            LOGGER.error("body :" + response.body());
+            LOGGER.error("Unable to authenticate for EUMet - network problems?");
+        }
+    }
+
+    /**
+     * @return the EUmetQuery
+     */
+    public String getEUmetQuery() {
+        return EUmetQuery;
+    }
+
+    /**
+     * @param EUmetQuery the EUmetQuery to set
+     */
+    public void setEUmetQuery(String EUmetQuery) {
+        this.EUmetQuery = EUmetQuery;
+    }
+
+//    
+//    public LocalTime getSunset() {
+//        LocalTime sunset = LocalTime.of(18,00);
+//        
+//        HttpRequest request = HttpRequest.newBuilder()
+//            .uri(URI.create(ph.getItem(sunsetApi)))
+//            .GET()
+//            .build();
+//        
+//        try{
+//            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+//        } catch (Exception ex){
+//            
+//        }
+//        return sunset;
+//        
+//    }
+//    
+    /**
+     * @return the statusCode
+     */
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    /**
+     * @param statusCode the statusCode to set
+     */
+    private void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    private BufferedImage collectImage(HttpRequest imageRequest) throws IOException, InterruptedException {
+        byte[] bytes = null;
+        HttpResponse<?> response = httpClient.send(imageRequest, BodyHandlers.ofByteArray());
+        bytes = (byte[]) response.body();
+        setStatusCode(response.statusCode());
+        LOGGER.trace("Image collection StatusCode :" + getStatusCode() + ", image size :" + bytes.length);
+        if (getStatusCode() == 200) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+            return ImageIO.read(bis);
+        } else {
+            LOGGER.debug("Non-image response :" + new String(bytes));
+            return null;
+        }
+
+    }
+
+    private String saveImage(BufferedImage what, String where) {
+
+        try {
+            imageLocation = new File(where);
+            //if (imageLocation.canWrite()){
+            // Started misbehaving - process runs in my user, permissions are OK, directory is present,
+            // but got false for canWrite().
+            // It works fine without the test for canWrite().  Go figure.
+                ImageIO.write(what, "png", imageLocation);
+            //}
+
+        } catch (IOException ex) {
+            LOGGER.error("Unable to save image (" + where + ") " + ex.getMessage());
+        }
+        return imageLocation.getParent();
+    }
+
+    private void apodError(String text) {
+        try {
+            LOGGER.error(text);
+            retryDelayMS += 5000;
+            Thread.sleep(retryDelayMS);
+        } catch (InterruptedException ex) {
+            //oh well, never mind
+        }
+    }
+}
+
 /*
     public void callNasaPhotoJournalRSS(String rssURL, String imagePath) {
         //https://photojournal.jpl.nasa.gov/rss/targetFamily/Mars
@@ -270,117 +405,3 @@ public class EUmetViewer {
     
     }
 */
-    private void restorePrefs() {
-        ph.getItem("accessToken");
-        tokenTimestamp = ph.getItem("tokenTimestamp");
-        try {
-            LocalDateTime lastTime = LocalDateTime.parse(tokenTimestamp, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1L);
-            if (accessToken == null || lastTime.isBefore(oneHourAgo)) {
-                getNewToken();
-            }
-        } catch (Exception e) { // date was garbage
-            getNewToken();
-        }
-
-    }
-
-    private void getNewToken() {
-        HttpResponse<String> response = null;
-        HttpRequest request;
-
-        String consumer = consumerKey + ":" + consumerSecret;
-        String base64Product = Base64.getEncoder().withoutPadding().encodeToString(consumer.getBytes());
-
-        request = HttpRequest.newBuilder().uri(URI.create(EUmetAuthenticationURL))
-            .headers("Content-Type", "application/x-www-form-urlencoded")
-            .headers("Authorization", "Basic " + base64Product)
-            .POST(BodyPublishers.ofString("grant_type=client_credentials")).build();
-
-        try {
-            response = httpClient.send(request, BodyHandlers.ofString());
-            JSONObject jo = new JSONObject(response.body());
-            accessToken = jo.getString("access_token");
-            tokenTimestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            ph.putItem("accessToken", accessToken);
-            ph.putItem("tokenTimestamp", tokenTimestamp);
-
-        } catch (IOException | InterruptedException ex) {
-            LOGGER.error("response code :" + response.statusCode());
-            LOGGER.error("body :" + response.body());
-            LOGGER.error("Unable to authenticate for EUMet - network problems?");
-        }
-    }
-
-    /**
-     * @return the EUmetQuery
-     */
-    public String getEUmetQuery() {
-        return EUmetQuery;
-    }
-
-    /**
-     * @param EUmetQuery the EUmetQuery to set
-     */
-    public void setEUmetQuery(String EUmetQuery) {
-        this.EUmetQuery = EUmetQuery;
-    }
-
-    /**
-     * @return the imageBytes No, find it on disk not memory public byte[]
-     * getImageBytes() { return imageBytes; }
-     */
-    /**
-     * @return the statusCode
-     */
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    /**
-     * @param statusCode the statusCode to set
-     */
-    private void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    private BufferedImage collectImage(HttpRequest imageRequest) throws IOException, InterruptedException {
-        byte[] bytes = null;
-        HttpResponse<?> response = httpClient.send(imageRequest, BodyHandlers.ofByteArray());
-        bytes = (byte[]) response.body();
-        setStatusCode(response.statusCode());
-        LOGGER.trace("Image collection StatusCode :" + getStatusCode() + ", image size :" + bytes.length);
-        if (getStatusCode() == 200) {
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            return ImageIO.read(bis);
-        } else {
-            LOGGER.debug("Non-image response :" + new String(bytes));
-            return null;
-        }
-
-    }
-
-    private String saveImage(BufferedImage what, String where) {
-
-        try {
-            imageLocation = new File(where);
-            if (imageLocation.canWrite()){
-                ImageIO.write(what, "png", imageLocation);
-            }
-
-        } catch (IOException ex) {
-            LOGGER.error("Unable to save image (" + where + ") " + ex.getMessage());
-        }
-        return imageLocation.getParent();
-    }
-
-    private void apodError(String text) {
-        try {
-            LOGGER.error(text);
-            retryDelayMS += 5000;
-            Thread.sleep(retryDelayMS);
-        } catch (InterruptedException ex) {
-            //oh well, never mind
-        }
-    }
-}

@@ -12,11 +12,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import java.net.URL;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
 import javafx.scene.control.Alert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +37,6 @@ public class DashboardScreen extends HBox {
 	private ApptsPaneController apptsController;
 	private WeatherPaneController weatherController;
 	public UpdateFetcher updateFetcher;
-    private int phase = -1;
 
 	@SuppressWarnings("unchecked")
 	public DashboardScreen(PropertyLoader pl) throws IOException {
@@ -72,9 +68,6 @@ public class DashboardScreen extends HBox {
 	private void SetupPanes() throws IOException {
 		LOGGER.trace("");
 		LOGGER.trace("-----------------Dashboard begins ----------------");
-		//URL fxmlLocation = getClass().getResource("/clockPane.fxml");
-		//FXMLLoader clockLoadr =  new FXMLLoader(fxmlLocation);
-		//URL fxmlResource = getClass().getResource("/clockPane.fxml");
 		
 		FXMLLoader clockLoader = new FXMLLoader(getClass().getResource("/clockPane.fxml"));
 		clockController = new ClockPaneController();
@@ -84,11 +77,6 @@ public class DashboardScreen extends HBox {
         URL	fxmlResource = getClass().getResource("/exitPane.fxml");
         exitPane = FXMLLoader.load(fxmlResource );   
 
-/*
-        FXMLLoader exitLoader = new FXMLLoader(getClass().getResource("/exitPane.fxml"));
-        exitController = new ExitPaneController();
-        exitPane = exitLoader.load();
-*/                
 		FXMLLoader weatherLoader = new FXMLLoader(getClass().getResource("/weatherPane.fxml"));
 		weatherController = new WeatherPaneController();
 		weatherLoader.setController(weatherController);

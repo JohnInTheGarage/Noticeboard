@@ -45,7 +45,6 @@ public class WeatherDecoderES extends AbstractWeatherDecoder {
 		JSONObject jo = new JSONObject(json);
 		forecast = new Forecast();
 		forecast.setModelRunDate(parseDate((String) jo.getString("elaborado")));
-		//System.out.println("forecast from :" +jo.getString("elaborado"));
 		JSONObject prediction = (JSONObject) jo.get("prediccion");
 		JSONArray dias = (JSONArray) prediction.get("dia");
 
@@ -121,7 +120,6 @@ public class WeatherDecoderES extends AbstractWeatherDecoder {
 		JSONArray itemByHours = (JSONArray) oneday.get(activeItem);
 		for (int n = 0; n < itemByHours.length(); n++) {
 			JSONObject item = (JSONObject) itemByHours.get(n);
-			//System.out.println(activeItem + " parts :" + item);
 			hours = (String) item.get("periodo");
 			if (item.has("value")) {
 				value = (String) item.get("value");			// will be null when the 2 below are not null
@@ -162,7 +160,6 @@ public class WeatherDecoderES extends AbstractWeatherDecoder {
 	}
 
 	private void storeByTimeES(String activeItem, int pIndex, String value, String[] tempArray) {
-		//System.out.println(String.format("storeByTime %s hour:%d, value: %s", activeItem, pIndex, value));
 		//If doing sky-codes, reduce 60+ spanish values to the more limited set for our purposes
 		if (activeItem.equals("estadoCielo")) {
 			int spainCode = 0;
@@ -248,7 +245,6 @@ public class WeatherDecoderES extends AbstractWeatherDecoder {
 				}
 
 			}
-			//System.out.println(String.format("%s at %s =%s", activeItem, pIndex, code));
 			tempArray[pIndex] = code;
 			return;
 		}

@@ -169,6 +169,16 @@ public class AdminPane extends VBox {
         item.put("value", ph.getItem("forecastProvider"));
         items.add(item);
 
+        Map<String, Object> item8 = new HashMap<>();
+        item6.put("parameter", "Sunrise");
+        item6.put("value", ph.getItem("sunrise"));
+        items.add(item8);
+
+        Map<String, Object> item9 = new HashMap<>();
+        item7.put("parameter", "Sunset");
+        item7.put("value", ph.getItem("sunset"));
+        items.add(item9);
+
         tableView.getItems().addAll(items);
 
         this.getChildren().add(buttonsPane);

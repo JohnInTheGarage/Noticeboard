@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Moon Phase Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #f0f0f0;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .moon-container {
+            background: radial-gradient(circle, #1a1a2e 0%, #0f0f23 70%);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        #moonSvg {
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-group {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        label {
+            font-weight: bold;
+            min-width: 120px;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .phase-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        #currentPhase {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        .code-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        pre {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌙 Dynamic Moon Phase Generator</h1>
+        
+        <div class="moon-container">
+            <svg id="moonSvg" width="200" height="200" viewBox="0 0 200 200">
+                <defs>
+                    <radialGradient id="moonGradient" cx="0.3" cy="0.3" r="0.8">
+                        <stop offset="0%" style="stop-color:#f8f8ff"/>
+                        <stop offset="100%" style="stop-color:#e6e6e6"/>
+                    </radialGradient>
+                    <filter id="moonShadow">
+                        <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+                    </filter>
+                </defs>
+                <circle cx="100" cy="100" r="90" fill="#1a1a1a" filter="url(#moonShadow)"/>
+                <path id="moonPhase" fill="url(#moonGradient)"/>
+            </svg>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="phaseSlider">Moon Phase:</label>
+                <input type="range" id="phaseSlider" min="0" max="29.53" step="0.1" value="0">
+                <span id="phaseValue">0.0 days</span>
+            </div>
+            
+            <div class="buttons">
+                <button onclick="setPhase(0)">New Moon</button>
+                <button onclick="setPhase(7.38)">First Quarter</button>
+                <button onclick="setPhase(14.77)">Full Moon</button>
+                <button onclick="setPhase(22.15)">Last Quarter</button>
+                <button onclick="animateCycle()">Animate Cycle</button>
+            </div>
+        </div>
+        
+        <div class="phase-info">
+            <div id="currentPhase">New Moon</div>
+            <div>Illumination: <span id="illumination">0%</span></div>
+            <div>k value: <span id="jk_k">0%</span></div>
+
+        </div>
+        
+        <div class="code-section">
+            <h3>Generated SVG Path:</h3>
+            <pre id="svgPath"></pre>
+        </div>
+    </div>
+
+    <script>
+        const phaseSlider = document.getElementById('phaseSlider');
+        const phaseValue = document.getElementById('phaseValue');
+        const moonPhase = document.getElementById('moonPhase');
+        const currentPhase = document.getElementById('currentPhase');
+        const illumination = document.getElementById('illumination');
+        const jk_k = document.getElementById('jk_k');
+        const svgPath = document.getElementById('svgPath');
+        
+        let animationId = null;
+        
+        function generateMoonPath(phase) {
+            const cx = 100, cy = 100, r = 90;
+            
+            // Convert phase (0-29.53 days) to angle (0-2π)
+            const angle = (phase / 29.53) * 2 * Math.PI;
+            
+            // Calculate illumination percentage
+            const illum = Math.round((1 - Math.cos(angle)) * 50);
+            
+            // Determine if we're waxing or waning
+            const isWaxing = angle < Math.PI;
+            
+            // Calculate the terminator curve
+            // The terminator is an ellipse that rotates around the moon
+            const k = Math.cos(angle); // Compression factor for the ellipse
+            
+            let path = '';
+            
+            if (Math.abs(k) < 0.001) {
+                // Full moon or new moon (avoid division by zero)
+                if (illum > 95) {
+                    // Full moon - show complete circle
+                    path = `M ${cx-r},${cy} A ${r},${r} 0 1,1 ${cx+r},${cy} A ${r},${r} 0 1,1 ${cx-r},${cy} Z`;
+                } else {
+                    // New moon - show nothing
+                    path = '';
+                }
+            } else {
+                // Calculate the illuminated portion
+                const absK = Math.abs(k);
+                const ellipseA = r * absK; // Semi-major axis of terminator ellipse
+                
+                if (isWaxing) {
+                    if (k > 0) {
+                        // Waxing crescent to first quarter
+                        path = `M ${cx},${cy-r} A ${ellipseA},${r} 0 0,${k > 0 ? 1 : 0} ${cx},${cy+r} A ${r},${r} 0 0,0 ${cx},${cy-r} Z`;
+                    } else {
+                        // First quarter to full
+                        path = `M ${cx},${cy-r} A ${r},${r} 0 0,1 ${cx},${cy+r} A ${ellipseA},${r} 0 0,1 ${cx},${cy-r} Z`;
+                    }
+                } else {
+                    if (k < 0) {
+                        // Waning gibbous to last quarter
+                        path = `M ${cx},${cy-r} A ${r},${r} 0 0,0 ${cx},${cy+r} A ${ellipseA},${r} 0 0,0 ${cx},${cy-r} Z`;
+                    } else {
+                        // Last quarter to new
+                        path = `M ${cx},${cy-r} A ${ellipseA},${r} 0 0,0 ${cx},${cy+r} A ${r},${r} 0 0,1 ${cx},${cy-r} Z`;
+
+                    }
+                }
+            }
+            
+            return { path, illumination: illum, k };
+        }
+        
+        function getPhaseNameAndIllumination(phase) {
+            const normalizedPhase = phase % 29.53;
+            const angle = (normalizedPhase / 29.53) * 2 * Math.PI;
+            const illum = (1 - Math.cos(angle)) * 50;
+            
+            let phaseName;
+            if (normalizedPhase < 1) phaseName = "New Moon";
+            else if (normalizedPhase < 7) phaseName = "Waxing Crescent";
+            else if (normalizedPhase < 8) phaseName = "First Quarter";
+            else if (normalizedPhase < 14) phaseName = "Waxing Gibbous";
+            else if (normalizedPhase < 15.5) phaseName = "Full Moon";
+            else if (normalizedPhase < 22) phaseName = "Waning Gibbous";
+            else if (normalizedPhase < 23) phaseName = "Last Quarter";
+            else phaseName = "Waning Crescent";
+            
+            return { name: phaseName, illumination: Math.round(illum) };
+        }
+        
+        function updateMoon() {
+            const phase = parseFloat(phaseSlider.value);
+            const result = generateMoonPath(phase);
+            const phaseInfo = getPhaseNameAndIllumination(phase);
+            
+            moonPhase.setAttribute('d', result.path);
+            phaseValue.textContent = `${phase.toFixed(1)} days`;
+            currentPhase.textContent = phaseInfo.name;
+            illumination.textContent = `${phaseInfo.illumination}%`;
+            jk_k.textContent = `${result.k}`;
+            svgPath.textContent = result.path;
+        }
+        
+        function setPhase(phase) {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            phaseSlider.value = phase;
+            updateMoon();
+        }
+        
+        function animateCycle() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+                return;
+            }
+            
+            let currentPhase = 0;
+            
+            function animate() {
+                currentPhase += 0.1;
+                if (currentPhase > 29.53) currentPhase = 0;
+                
+                phaseSlider.value = currentPhase;
+                updateMoon();
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+        
+        phaseSlider.addEventListener('input', updateMoon);
+        
+        // Initialize
+        updateMoon();
+    </script>
+</body>
+</html>

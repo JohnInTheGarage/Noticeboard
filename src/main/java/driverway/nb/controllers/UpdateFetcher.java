@@ -1,5 +1,6 @@
 package driverway.nb.controllers;
 
+import driverway.nb.externals.SunAndMoonData;
 import driverway.nb.utils.PropertyLoader;
 import driverway.nb.utils.PreferenceHelper;
 import driverway.nb.weatherfinder.Forecast;
@@ -9,6 +10,7 @@ import static java.lang.Thread.sleep;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,18 +22,21 @@ public class UpdateFetcher implements Runnable {
 
     private static final Logger LOGGER = LogManager.getLogger();
     private Forecast forecast;
-    private LocalDate moonCallDate;
-    private Appointments apptsData;
-    private final WeatherReader louiseLear;
+    private int sunMoonDay = 0;
     private LocalDateTime lastForecast;
     private LocalDateTime lastAppointments;
     private LocalDateTime nextForecast;
     private LocalDateTime nextAppointments;
     private final String providerCode;
     private final String googleId;
+    private Appointments apptsData;
+    private final WeatherReader louiseLear;
     private final PreferenceHelper ph;
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
+    private final Properties nbProperties;
+    private final DateTimeFormatter formatDateAndTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private Properties samd;
+    private double moonAge;
+    
     //Minutes, not seconds
     private final int intervalForecast;
     private final int intervalAppointments;
@@ -42,7 +47,7 @@ public class UpdateFetcher implements Runnable {
      */
     public UpdateFetcher(PropertyLoader pl) {
         ph = PreferenceHelper.getInstance();
-        var nbProperties = pl.load("noticeboard.properties");
+        nbProperties = pl.load("noticeboard.properties");
         String forecastFrequency = nbProperties.getProperty("ForecastRequestInterval");
         String appointmentsFrequency = nbProperties.getProperty("GoogleRequestInterval");
 
@@ -87,18 +92,17 @@ public class UpdateFetcher implements Runnable {
                 findNewForecast();
                 lastForecast = rightNow;
                 nextForecast = rightNow.plusMinutes(intervalForecast);        
-                ph.putItem("lastForecast", rightNow.format(formatter));
+                ph.putItem("lastForecast", rightNow.format(formatDateAndTime));
             }
 
             if (rightNow.isAfter(nextAppointments)) {
                 findNewAppointments();
                 lastAppointments = rightNow;
                 nextAppointments = rightNow.plusMinutes(intervalAppointments);
-                ph.putItem("lastAppointments", rightNow.format(formatter));
+                ph.putItem("lastAppointments", rightNow.format(formatDateAndTime));
             }
             try {
-                //LOGGER.trace(toString());
-                sleep(60000 * 1);
+                sleep(60000);
             } catch (InterruptedException ex) {
             }
 
@@ -108,26 +112,30 @@ public class UpdateFetcher implements Runnable {
     public void findNewAppointments() {
         getApptsData().fetchAppointmentsGoogle();     //.fetchAppointmentsSamba(); 
         if (getApptsData().isOK()) {
-            //LOGGER.trace("Appointments OK:");
         } else {
             LOGGER.error("failed to get Appointments");
         }
     }
 
     public void findNewForecast() {
-        boolean allowMoonPhaseAPI = moonCallDate == null || (lastForecast.getDayOfMonth() != moonCallDate.getDayOfMonth());
-        Forecast latest = louiseLear.readWeather( allowMoonPhaseAPI );
+        Forecast latest = louiseLear.readWeather();
         
-        if (allowMoonPhaseAPI){
-            moonCallDate = LocalDate.now();
-        } else {
-            latest.setMoonAge( forecast.getMoonAge() );
-        }
+        if (sunMoonDay != LocalDate.now().getDayOfMonth()){
+            SunAndMoonData sunMoonParser = new SunAndMoonData();
+            samd = sunMoonParser.collectData(nbProperties);
+            ph.putItem("sunrise", samd.getProperty("sunrise", "00:00"));
+            ph.putItem("sunset", samd.getProperty("sunset", "00:00"));
+            double moonAngle = Double.parseDouble(samd.getProperty("moonangle", "0.0"));
+            moonAge = 30 * (moonAngle / 360);
+            sunMoonDay = LocalDate.now().getDayOfMonth();
+        } 
         
+        latest.setMoonAge(moonAge);  
+        // Not part of the weather, but displayed at the same time 
+        // so stored in Forecast.
         
-        if (latest != null && latest.isOK()) {
+        if (latest.isOK()) {
             setForecast(latest);
-            //LOGGER.trace("Forecast generated :" + latest.getHumanReadableRunDate());
         } else {
             LOGGER.error("failed to get Forecast");
         }
@@ -177,7 +185,7 @@ public class UpdateFetcher implements Runnable {
     }
 
     private String timestamp(LocalDateTime t) {
-        return t.format(formatter);
+        return t.format(formatDateAndTime);
     }
 
     @Override

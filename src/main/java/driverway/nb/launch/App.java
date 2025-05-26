@@ -165,6 +165,7 @@ public class App extends Application {
             private void checkSatPane(LocalDateTime timestamp) {
                 ObservableList<Node> childs = stack.getChildren();
                 var backPane = childs.get(0);
+                var test = childs.get(1);
                 if (backPane.getId().equals(SAT_ID)) {
                     if (hideTimestamp == null) {
                         hideTimestamp = timestamp;
