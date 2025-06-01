@@ -1,6 +1,5 @@
 package driverway.nb.controllers;
 
-import driverway.nb.externals.SunAndMoonData;
 import driverway.nb.utils.PropertyLoader;
 import driverway.nb.utils.PreferenceHelper;
 import driverway.nb.weatherfinder.Forecast;
@@ -13,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import driverway.sunandmoondata.SunAndMoonData;
 
 /**
  *
@@ -50,7 +50,7 @@ public class UpdateFetcher implements Runnable {
         nbProperties = pl.load("noticeboard.properties");
         String forecastFrequency = nbProperties.getProperty("ForecastRequestInterval");
         String appointmentsFrequency = nbProperties.getProperty("GoogleRequestInterval");
-
+        
         // intervals in minutes
         intervalForecast = Integer.parseInt(forecastFrequency, 10);
         intervalAppointments = Integer.parseInt(appointmentsFrequency, 10);
@@ -122,7 +122,11 @@ public class UpdateFetcher implements Runnable {
         
         if (sunMoonDay != LocalDate.now().getDayOfMonth()){
             SunAndMoonData sunMoonParser = new SunAndMoonData();
-            samd = sunMoonParser.collectData(nbProperties);
+            String sunMoonURL = nbProperties.getProperty("SunAndMoonURL");
+            String timeZone = nbProperties.getProperty("LocalTimeZone");
+            String latitude = nbProperties.getProperty("UkMetOfficeLatitude");
+            String longitude = nbProperties.getProperty("UkMetOfficeLongitude");
+            samd = sunMoonParser.collectData(sunMoonURL, timeZone, latitude, longitude);
             ph.putItem("sunrise", samd.getProperty("sunrise", "00:00"));
             ph.putItem("sunset", samd.getProperty("sunset", "00:00"));
             double moonAngle = Double.parseDouble(samd.getProperty("moonangle", "0.0"));
