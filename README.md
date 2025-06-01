@@ -1,6 +1,12 @@
 # Noticeboard
 
-Dec 2023 - Fixed bugs and added Nasa "BlueMarble" images
+June 2025 - Extracted Sun & Moon data to separate project for use elsewhere. https://github.com/JohnInTheGarage/SunAndMoon.
+
+May 2025 - Add sunrise & sunset times, re-work moonphase, refactor external apis.
+
+Dec 2024 - Add Moon Phase simulation.
+
+Dec 2023 - Fixed bugs and added Nasa "BlueMarble" images.
 
 Dec 2022 - Changed Xmas lights to use MQTT instead of HTTP requests as its a lighter workload for the Pi 2 that controls
 the relays for the lights.
