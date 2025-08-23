@@ -40,7 +40,7 @@ public class ExitPaneController implements Initializable {
             //LOGGER.trace("ShowAdmin >> got admin pane");
             window.setScene(new Scene(adminScreen, 800, 480));
             //LOGGER.trace("ShowAdmin >> set the scene");
-			if (System.getProperty("os.arch").equals("arm")) {
+			if ("arm-aarch64".contains(System.getProperty("os.arch")) ) {
 				window.setFullScreen(true);
                 //LOGGER.trace("ShowAdmin >> set fullscreen");
 			}

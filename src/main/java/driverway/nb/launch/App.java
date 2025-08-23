@@ -34,22 +34,52 @@ import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
  * Needs Bellsoft full JDK for on development PC which has JavaFX built-in for
  * building, And Bellsoft full JRE for Arm (also containing JavaFX) for
  * deployment on Raspberry Pi.
- *
- * Autostart the application by these 4 lines in
- * /etc/xdg/lxsession/LXDE-pi/autostart
- *
- * @lxpanel --profile LXDE-pi
- * @pcmanfm --desktop --profile LXDE-pi
- * @xscreensaver -no-splash
- * @/usr/bin/java -jar /home/pi/NB/NoticeBoard.jar > /home/pi/start.txt
- *
+ * 
+ * Since Wayland, run from a systemd service; e.g. 
+ *      for an installation under a user called john,
+ *      in a directory called NB 
+ *      run by a service called NB.service
+ *      with an environment variable (for the proprty files directory) of NBPROPERTIES
+ * 
+ * create a file with :
+ * sudo nano /etc/systemd/system/NB.service
+ * and insert lines such as these
+
+[Unit]
+Description=NoticeBoard (NB) app
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+User=john
+WorkingDirectory=/home/john/NB
+Environment=NBPROPERTIES=/home/john/NB/properties
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/john/.Xauthority
+ExecStart=/usr/bin/java -jar /home/john/NB/NoticeBoard.jar
+
+#Restart=on-failure
+#RestartSec=10
+TimeoutStartSec=240
+
+# Send stdout and stderr to the journal
+StandardOutput=journal
+StandardError=journal
+# Optional: tag log lines so you can filter just your app
+SyslogIdentifier=NB
+
+[Install]
+WantedBy=graphical.target
+
+
  * ---------------------------------------------------------- 
  * Set up "crontab -e" (i.e. don't use sudo to set it up) with these lines to 
  * reboot pi daily and turn screen off overnight 
+ * (out-of-date, see below)
  * 59 23 * * * /usr/bin/sudo sh -c "echo 1 > /sys/class/backlight/rpi_backlight/bl_power" 
  * 00 06 * * * /usr/bin/sudo sh -c "echo 0 > /sys/class/backlight/rpi_backlight/bl_power"
  *
- * With Raspian Buster this changes to 
+ * With Raspian Buster & Bookworm this changes to 
  * 59 23 * * * /usr/bin/sudo sh -c "echo 1 > /sys/class/backlight/10-0045/bl_power" 
  * 00 06 * * * /usr/bin/sudo sh -c "echo 0 > /sys/class/backlight/10-0045/bl_power"
  * Which seems like a shit idea to me, and its not in the official docs.
@@ -69,9 +99,9 @@ public class App extends Application {
     private LocalDateTime hideTimestamp = null;
     private static final String CLOCKSERVICEFAIL = ">>>>>>>>>>>>> Clock service failed <<<<<<<<<<<<<";
     private static final String SAT_ID = "satellite";
-
+    private static final String PI_ARCH = "arm-aarch64";        
     static {
-        if (System.getProperty("os.arch").equals("arm")) {
+        if (PI_ARCH.contains(System.getProperty("os.arch")) ) {
             System.setProperty("log4j.configurationFile", "/home/pi/log4j2.xml");
         }
     }
@@ -102,7 +132,7 @@ public class App extends Application {
 				var backPane = childs.get(0);
 				backPane.toFront();
 				hideTimestamp = null;
-				LOGGER.trace("++++++++ this was Touch Event +++++++++");
+				//LOGGER.trace("++++++++ this was Touch Event +++++++++");
 			}
 
 		});
@@ -114,7 +144,7 @@ public class App extends Application {
                 var backPane = childs.get(0);
                 backPane.toFront();
                 hideTimestamp = null;
-                LOGGER.trace("++++++++ this was Mouse Event +++++++++");
+                //LOGGER.trace("++++++++ this was Mouse Event +++++++++");
             }
 
         });
@@ -125,10 +155,11 @@ public class App extends Application {
         var scene = new Scene(stack, 800, 480);
         scene.setCursor(Cursor.NONE);
         stage.setFullScreenExitHint("");
-        if (System.getProperty("os.arch").equals("arm")) {
+        if (PI_ARCH.contains(System.getProperty("os.arch")) ) {
             stage.setFullScreen(true);
         }
-
+        LOGGER.trace("Architecture is " +System.getProperty("os.arch"));
+        
         stage.setOnCloseRequest(e -> {
             e.consume();
             closeProgram(stage);
