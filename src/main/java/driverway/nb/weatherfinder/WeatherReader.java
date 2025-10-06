@@ -59,16 +59,17 @@ public class WeatherReader {
 
         // for Spain, once per hour look for weather alerts
         LocalTime rightNow = LocalTime.now();
-        if (rightNow.getHour() != avisosHour) {
-            avisosHour = rightNow.getHour();
-            fc.setAlerts(apiCaller.getAlerts());
-            LOGGER.trace("collected aviso xmls");
+        if (provider.toUpperCase().equals("ES") ){
+            if (rightNow.getHour() != avisosHour) {
+                avisosHour = rightNow.getHour();
+                fc.setAlerts(apiCaller.getAlerts());
+                LOGGER.trace("collected aviso xmls");
+            }
         }
 
         fc.setOK(true);
         return fc;
     }
-
 
     private WeatherApiCaller serviceFactory(Properties props) {
         switch (provider.toUpperCase()) {

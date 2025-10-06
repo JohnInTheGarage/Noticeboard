@@ -1,0 +1,244 @@
+package driverway.nb.screens;
+
+import driverway.nb.weatherfinder.Forecast;
+import driverway.nb.weatherfinder.Period;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.SVGPath;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
+
+/**
+ *
+ * @author john
+ * Dynamic pane of VBox columns in an HBox.
+ * Provides the detail view of the periods of the weather forecast, one column per period.  
+ * First column shows data type and Back button, last column has buttons to navigate through periods.
+ * The duration of the periods depends on which API is providing the data.
+ */
+public class PeriodsPane extends HBox {
+
+	private Scene callerScene;
+	private Forecast fc;
+	private final VBox colFirst;
+	private final VBox colLast;
+	private int period1 = 0;
+	private final String[] direction = new String[]{"C","N","NE","E","SE","S","SW","W","NW"};
+	
+    private static final Map<String, SVGPath> SVG_PROTOTYPES = new HashMap<>();
+
+	static {
+		try {
+			URL fxmlUrl = PeriodsPane.class.getResource("/weather_icons.fxml");
+			if (fxmlUrl == null) {
+				System.err.println("FATAL: Cannot find weather_icons.fxml");
+			} else {
+//                FXMLLoader pLoader = new FXMLLoader(getClass().getResource("/weather_icons.fxml"));
+//                Pane iconContainer = pLoader.load();
+
+				Pane iconContainer = FXMLLoader.load(fxmlUrl);
+				for (Node node : iconContainer.getChildren()) {
+					if (node.getId() != null && node instanceof SVGPath) {
+						SVG_PROTOTYPES.put(node.getId(), (SVGPath) node);
+					}
+				}
+			}
+		} catch (IOException e) {
+			System.err.println("FATAL: Cannot load weather_icons.fxml");
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public PeriodsPane(Forecast forecast, Scene thisScene) throws IOException {
+		callerScene = thisScene;
+		fc = forecast;
+		Pane next8Pane = makeDataPane("Next");
+		Pane prev8Pane = makeDataPane("Prev");
+		Pane backPane = makeIconPane(copySVGPath(SVG_PROTOTYPES.get("icon_back")));
+		Pane tempPane = makeIconPane(copySVGPath(SVG_PROTOTYPES.get("icon_temp")));
+		Pane rainPane = makeIconPane(copySVGPath(SVG_PROTOTYPES.get("icon_rain")));
+		Pane windPane = makeIconPane(copySVGPath(SVG_PROTOTYPES.get("icon_wind")));
+		Pane cloudPane = makeIconPane(copySVGPath(SVG_PROTOTYPES.get("icon_cloud")));
+		Pane humidityPane = makeIconPane(copySVGPath(SVG_PROTOTYPES.get("icon_humid")));
+		colFirst = new VBox(backPane, tempPane, rainPane, windPane, cloudPane, humidityPane);
+		colLast = new VBox(makeEmptyPane(), makeEmptyPane(), next8Pane, prev8Pane, makeEmptyPane(), makeEmptyPane());
+
+		this.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+        var before = System.currentTimeMillis();
+		fillPeriods();
+		var after = System.currentTimeMillis();
+        var result = after - before;
+        System.out.println("after - before =" +result);
+        
+		EventHandler<MouseEvent> eventBackHandler = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				Scene thisScene = ((Node)event.getSource()).getScene();
+				Stage window = (Stage) thisScene.getWindow();
+				window.setScene(callerScene);
+				window.setFullScreen(true);
+				window.show();
+			}
+		};
+		
+		EventHandler<MouseEvent> eventNextHandler = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				int max = fc.getPeriodMax() - 8;
+				period1 = (period1 >= max) ? max : period1 + 8;
+				fillPeriods();
+			}
+		};
+		
+		EventHandler<MouseEvent> eventPrevHandler = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				period1 = period1 < 8 ? 0 : period1 - 8;
+				fillPeriods();
+			}
+		};
+		next8Pane.addEventFilter(MouseEvent.MOUSE_CLICKED, eventNextHandler);
+		prev8Pane.addEventFilter(MouseEvent.MOUSE_CLICKED, eventPrevHandler);
+		backPane.addEventFilter(MouseEvent.MOUSE_CLICKED, eventBackHandler);
+	}
+	
+	private void fillPeriods(){
+		this.getChildren().clear();
+		this.getChildren().add(colFirst);
+		
+		int px = period1;
+		for (int col = 0; col < 8; col++) {
+			if (px > fc.getPeriodMax()){
+				break;
+			}
+			Period p = fc.getPeriod(px);
+			VBox column = new VBox();
+
+			BorderPane bp = makeEmptyPane();
+			setPaneText(bp, p.getStartTimeText());
+			column.getChildren().add(bp);
+			
+			bp = makeEmptyPane();
+			setPaneText(bp, p.getMaxTemp());
+			column.getChildren().add(bp);
+			
+			bp = makeEmptyPane();
+			setPaneText(bp, p.getProbOfPrecip() + "\n" + p.getTotalPrecip());
+			column.getChildren().add(bp);
+			
+			bp = makeEmptyPane();
+			setPaneText(bp, p.getWindSpeed() + "\n" +direction[p.getWindDirection()]);
+			
+			column.getChildren().add(bp);
+		
+			SVGPath svg = getSkySVG(p.getWeatherCode());
+			column.getChildren().add( makeIconPane(svg) );
+			
+			bp = makeEmptyPane();
+			setPaneText(bp, p.getHumidity());
+			column.getChildren().add(bp);
+			var pds = this.getChildren();
+			this.getChildren().add( column );
+			px++;
+		}
+		this.getChildren().add(colLast);
+	}
+
+	
+	/*
+	* Create pane for SVG icons 
+	*/
+	private Pane makeIconPane(SVGPath svgPath) {
+		Pane pane = makeEmptyPane();
+		pane.getChildren().add(svgPath);
+		return pane;
+	}
+
+	private void setPaneText(BorderPane bp, String num) {
+		Label l = new Label(num);
+		l.setFont(new Font("Arial", 20));
+		l.setMaxHeight(100);
+		l.setMaxWidth(100);
+		l.setAlignment(Pos.CENTER);
+		bp.setCenter(l);
+	}
+	
+	private Pane makeDataPane(String num) {
+		Label l = new Label(num);
+		l.setFont(new Font("Arial", 20));
+		l.setMaxHeight(100);
+		l.setMaxWidth(100);
+		l.setAlignment(Pos.CENTER);
+
+		BorderPane pane = makeEmptyPane();
+		pane.setCenter(l);
+		pane.setMaxSize(80, 80);
+		pane.setMinSize(80, 80);
+		//pane.setStyle("-fx-background-color:teal");
+		return pane;
+	}
+
+	private BorderPane makeEmptyPane() {
+		BorderPane pane = new BorderPane();
+		pane.setMaxSize(80, 80);
+		pane.setMinSize(80, 80);
+		return pane;
+	}
+
+	private SVGPath getSkySVG(int weatherCode) {
+
+    	String key = switch (weatherCode) {
+			case 0 -> "weather_night_clear";
+			case 1 -> "weather_day_clear";
+			case 2 -> "weather_night_part_cloud";
+			case 3 -> "weather_day_part_cloud";
+			case 5, 6, 7, 8 -> "weather_mist_fog_overcast";
+			case 9, 13, 16, 19, 22, 25, 28 -> "weather_night_rain_snow";
+			case 10, 11, 12, 14, 15, 17, 18, 20, 21, 23, 24, 26, 27, 29, 30 -> "weather_day_rain_snow";
+			default -> null;
+		};
+
+		if (key == null) {
+			return null;
+		}	
+		SVGPath prototype = SVG_PROTOTYPES.get(key);
+		return copySVGPath(prototype);
+	}
+
+
+	/**
+	 * Creates a new SVGPath instance by copying properties from a prototype.
+	 * A new instance is required because a Node cannot be in more than one place in the scene graph.
+	 * @param prototype The SVGPath to copy.
+	 * @return A new SVGPath instance, or null if the prototype is null.
+	 */
+	private SVGPath copySVGPath(SVGPath prototype) {
+		if (prototype == null) {
+			return null;
+		}
+		SVGPath newPath = new SVGPath();
+		newPath.setContent(prototype.getContent());
+		newPath.setScaleX(prototype.getScaleX());
+		newPath.setScaleY(prototype.getScaleY());
+		newPath.setLayoutX(prototype.getLayoutX());
+		newPath.setLayoutY(prototype.getLayoutY());
+		newPath.setFill(prototype.getFill());
+		return newPath;
+	}
+    
+
+}
