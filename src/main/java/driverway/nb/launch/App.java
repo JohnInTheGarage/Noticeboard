@@ -182,11 +182,13 @@ public class App extends Application {
         clockService.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent t) {
+                LOGGER.info("ClockService begin updates");
                 LocalDateTime timestamp = LocalDateTime.now();
                 noticeboard.setClock(timestamp);
                 checkSatPane(timestamp);
                 noticeboard.checkForecast();
                 noticeboard.checkAppointments();
+                LOGGER.info("ClockService end updates");
             }
 
             /*
@@ -221,7 +223,7 @@ public class App extends Application {
             }
         });
 
-        clockService.setDelay(Duration.seconds(10));
+        clockService.setDelay(Duration.seconds(25));
         clockService.setPeriod(Duration.seconds(10));
         clockService.setRestartOnFailure(true);
         clockService.start();

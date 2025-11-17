@@ -9,7 +9,7 @@
       fx:controller="driverway.nb.controllers.ExitPaneController">
    <children>
 
-       <Button fx:id="btnAdmin" layoutX="150.0" layoutY="27.0" mnemonicParsing="false" onAction="#showAdmin" text="Admin" />
-      
+       <Button fx:id="btnAdmin" minWidth="80" minHeight="40" layoutX="140.0" layoutY="27.0" mnemonicParsing="false" onAction="#showAdmin" text="Admin" />
+       
    </children>
 </Pane>

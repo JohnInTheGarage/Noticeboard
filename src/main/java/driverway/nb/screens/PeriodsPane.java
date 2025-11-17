@@ -75,7 +75,6 @@ public class PeriodsPane extends HBox {
 		fillPeriods();
 		var after = System.currentTimeMillis();
         var result = after - before;
-        System.out.println("after - before =" +result);
 
 		EventHandler<MouseEvent> eventBackHandler = new EventHandler<MouseEvent>() {
 			@Override
