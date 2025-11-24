@@ -53,10 +53,11 @@ Wants=graphical.target
 [Service]
 User=john
 WorkingDirectory=/home/john/NB
-Environment=NBPROPERTIES=/home/john/NB/properties
+Environment=NBPROPERTIES=/media/john/SATELLITE/properties
 Environment=DISPLAY=:0
 Environment=XAUTHORITY=/home/john/.Xauthority
-ExecStart=/usr/bin/java -jar /home/john/NB/NoticeBoard.jar
+ExecStart=/usr/bin/java -Xmx75M -jar /home/john/NB/NoticeBoard.jar
+# (-Xmx75M added to stop it using too much available memory on Pi 3a+)
 
 #Restart=on-failure
 #RestartSec=10
@@ -182,13 +183,11 @@ public class App extends Application {
         clockService.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent t) {
-                LOGGER.info("ClockService begin updates");
                 LocalDateTime timestamp = LocalDateTime.now();
                 noticeboard.setClock(timestamp);
                 checkSatPane(timestamp);
                 noticeboard.checkForecast();
                 noticeboard.checkAppointments();
-                LOGGER.info("ClockService end updates");
             }
 
             /*
