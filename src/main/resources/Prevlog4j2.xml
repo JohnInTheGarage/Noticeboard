@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration  monitorInterval="60">
+    <Appenders>
+        <!-- %t removed from patterns as it gave inconsistent results -->
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %-5p %C{2} (%F:%L) - %m%n"/>
+        </Console>
+
+        <RollingFile name="RollingFile" fileName="logs/noticeboard.log"
+                             filePattern="logs/$${date:yyyy-MM}/app-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout> 
+                <Pattern>%d %-5p (%F:%L) - %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
+		
+    </Appenders>
+	
+    <Loggers>
+        <Logger name="driverway.noticeboard_m" level="error" >
+            <AppenderRef ref="RollingFile" level="ERROR"/>
+        </Logger>
+        <Logger name="driverway.weatherfinder" level="error" >
+            <AppenderRef ref="RollingFile" level="ERROR"/>
+        </Logger>
+        <Logger name="driverway.googlecalendar" level="error" >
+            <AppenderRef ref="RollingFile" level="ERROR"/>
+        </Logger>
+
+        <Logger name="controllers" level="trace" >
+            <AppenderRef ref="RollingFile" level="TRACE"/>
+        </Logger>
+
+        		
+        <Root level="trace">
+            <AppenderRef ref="CONSOLE" level="TRACE"/>
+        </Root>
+    </Loggers>
+
+    <Loggers>
+        <Root level="trace">
+            <AppenderRef ref="RollingFile" level="TRACE"/>
+        </Root>
+    </Loggers>
+</Configuration>

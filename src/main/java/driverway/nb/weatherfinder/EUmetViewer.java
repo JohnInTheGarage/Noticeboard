@@ -21,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import driverway.nb.utils.PreferenceHelper;
-import java.time.LocalTime;
 
 /**
  *
@@ -41,7 +40,6 @@ public class EUmetViewer {
     private int statusCode;
     private final HttpClient httpClient;
     private final PreferenceHelper ph;
-    private int retryDelayMS = 1000;
     private File imageLocation;
     private final boolean EUmetRetainImages;
     private JSONArray ja;
@@ -102,7 +100,7 @@ public class EUmetViewer {
         }
 
     }
-    
+
     /**
      * 
      * 
@@ -121,7 +119,7 @@ public class EUmetViewer {
      */
     public void callNasaImageApi(String jsonURL, String apiKey, String imagePath, String imageField, boolean epic) {
         try {
-            if (ja.isEmpty()){
+            if (ja.isEmpty()) {
                 ja = new JSONArray(fetchNasaJson(jsonURL, apiKey));
             }
             // get the first image and then remove that from the array so next time we
@@ -168,41 +166,34 @@ public class EUmetViewer {
     public String fetchNasaJson(String nasaURL, String apiKey) {
 
         HttpRequest request;
-        retryDelayMS = -5000;
         String json = "";
         String joiner = nasaURL.contains("?") ? "&api_key=" : "?api_key=";
-        
+
         try {
-            while (retryDelayMS < 30000) {
-                retryDelayMS += 5000;
-                Thread.sleep(retryDelayMS);
+            // Request the JSON that has the image URL
+            request = HttpRequest.newBuilder()
+                .uri(URI.create(nasaURL + joiner + apiKey))
+                .headers("Content-Type", "application/x-www-form-urlencoded")
+                .GET()
+                .build();
 
-                // Request the JSON that has the image URL
-                request = HttpRequest.newBuilder()
-                    .uri(URI.create(nasaURL+joiner+apiKey))
-                    .headers("Content-Type", "application/x-www-form-urlencoded")
-                    .GET()
-                    .build();
-
-                HttpResponse<?> response = httpClient.send(request, BodyHandlers.ofString());
-                if (response != null) {
-                    setStatusCode(response.statusCode());
-                    if (getStatusCode() != 200) {
-                        apodError("bad status code from APOD call, adding 5 sec pause:" + getStatusCode());
-                        continue;
-                    }
-                    json = (String) response.body();
-                    break;
-                } else {
-                    apodError("APOD response is null, adding 5 sec pause");
+            HttpResponse<?> response = httpClient.send(request, BodyHandlers.ofString());
+            if (response != null) {
+                setStatusCode(response.statusCode());
+                if (getStatusCode() != 200) {
+                    LOGGER.error("bad status code from APOD call :" + getStatusCode());
                 }
+                json = (String) response.body();
+                LOGGER.info("JSON : " + json.substring(0, 60) + "...");
             }
+
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
 
         return json;
     }
+
     private void restorePrefs() {
         ph.getItem("accessToken");
         tokenTimestamp = ph.getItem("tokenTimestamp");
@@ -259,27 +250,6 @@ public class EUmetViewer {
         this.EUmetQuery = EUmetQuery;
     }
 
-//    
-//    public LocalTime getSunset() {
-//        LocalTime sunset = LocalTime.of(18,00);
-//        
-//        HttpRequest request = HttpRequest.newBuilder()
-//            .uri(URI.create(ph.getItem(sunsetApi)))
-//            .GET()
-//            .build();
-//        
-//        try{
-//            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-//        } catch (Exception ex){
-//            
-//        }
-//        return sunset;
-//        
-//    }
-//    
-    /**
-     * @return the statusCode
-     */
     public int getStatusCode() {
         return statusCode;
     }
@@ -315,7 +285,7 @@ public class EUmetViewer {
             // Started misbehaving - process runs in my user, permissions are OK, directory is present,
             // but got false for canWrite().
             // It works fine without the test for canWrite().  Go figure.
-                ImageIO.write(what, "png", imageLocation);
+            ImageIO.write(what, "png", imageLocation);
             //}
 
         } catch (IOException ex) {
@@ -324,15 +294,6 @@ public class EUmetViewer {
         return imageLocation.getParent();
     }
 
-    private void apodError(String text) {
-        try {
-            LOGGER.error(text);
-            retryDelayMS += 5000;
-            Thread.sleep(retryDelayMS);
-        } catch (InterruptedException ex) {
-            //oh well, never mind
-        }
-    }
 }
 
 /*
@@ -404,4 +365,4 @@ public class EUmetViewer {
         return imageList;
     
     }
-*/
+ */

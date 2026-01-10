@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -95,15 +97,37 @@ WantedBy=graphical.target
 public class App extends Application {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private ScheduledService<Integer> clockService;
+    //private ScheduledService<Integer> clockService;
     private StackPane stack;
     private LocalDateTime hideTimestamp = null;
-    private static final String CLOCKSERVICEFAIL = ">>>>>>>>>>>>> Clock service failed <<<<<<<<<<<<<";
+    //private static final String CLOCKSERVICEFAIL = ">>>>>>>>>>>>> Clock service failed <<<<<<<<<<<<<";
     private static final String SAT_ID = "satellite";
-    private static final String PI_ARCH = "arm-aarch64";        
+    private SatelliteImagePane satImagePane;
+    private static final String PI_ARCH = "arm-aarch64";
+
+
     static {
-        if (PI_ARCH.contains(System.getProperty("os.arch")) ) {
-            System.setProperty("log4j.configurationFile", "/home/pi/log4j2.xml");
+        if (PI_ARCH.contains(System.getProperty("os.arch"))) {
+            String externalConfigPath = "./log4j2.xml";
+            java.io.File externalConfig = new java.io.File(externalConfigPath);
+
+            if (!externalConfig.exists()) {
+                // Copy packaged config to external location on first run
+                try (java.io.InputStream is = App.class.getResourceAsStream("/log4j2.xml"); java.io.FileOutputStream fos = new java.io.FileOutputStream(externalConfig)) {
+
+                    if (is != null) {
+                        is.transferTo(fos);
+                        System.out.println("Created log4j2.xml at " + externalConfigPath);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to copy log4j2.xml: " + e.getMessage());
+                }
+            }
+
+            // Use external config if it exists
+            if (externalConfig.exists()) {
+                System.setProperty("log4j.configurationFile", externalConfigPath);
+            }
         }
     }
 
@@ -123,22 +147,21 @@ public class App extends Application {
         PropertyLoader pl = new PropertyLoader();
         DashboardScreen noticeboard = new DashboardScreen(pl);
 
-        SatelliteImagePane satImagePane = new SatelliteImagePane(pl);
+        satImagePane = new SatelliteImagePane(pl);
         satImagePane.setId(SAT_ID);
 
         //  Touch equates to Mouse-click on my touchscreen
-		satImagePane.setOnTouchPressed(new EventHandler<TouchEvent>() {
-			public void handle(TouchEvent event) {
-				ObservableList<Node> childs = stack.getChildren();
-				var backPane = childs.get(0);
-				backPane.toFront();
-				hideTimestamp = null;
-				//LOGGER.trace("++++++++ this was Touch Event +++++++++");
-			}
+        satImagePane.setOnTouchPressed(new EventHandler<TouchEvent>() {
+            public void handle(TouchEvent event) {
+                ObservableList<Node> childs = stack.getChildren();
+                var backPane = childs.get(0);
+                backPane.toFront();
+                hideTimestamp = null;
+                //LOGGER.trace("++++++++ this was Touch Event +++++++++");
+            }
 
-		});
-         
-         
+        });
+
         satImagePane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 ObservableList<Node> childs = stack.getChildren();
@@ -156,11 +179,11 @@ public class App extends Application {
         var scene = new Scene(stack, 800, 480);
         scene.setCursor(Cursor.NONE);
         stage.setFullScreenExitHint("");
-        if (PI_ARCH.contains(System.getProperty("os.arch")) ) {
+        if (PI_ARCH.contains(System.getProperty("os.arch"))) {
             stage.setFullScreen(true);
         }
-        LOGGER.trace("Architecture is " +System.getProperty("os.arch"));
-        
+        LOGGER.trace("Architecture is " + System.getProperty("os.arch"));
+
         stage.setOnCloseRequest(e -> {
             e.consume();
             closeProgram(stage);
@@ -170,7 +193,17 @@ public class App extends Application {
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         stage.show();
 
-        //======================================
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(10), event -> {
+            LocalDateTime timestamp = LocalDateTime.now();
+            noticeboard.setClock(timestamp);
+            checkSatPane(timestamp);
+            noticeboard.checkForecast();
+            noticeboard.checkAppointments();
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+
+        /* /======================================
         clockService = new ScheduledService<Integer>() {
             @Override
             protected Task<Integer> createTask() {
@@ -190,10 +223,10 @@ public class App extends Application {
                 noticeboard.checkAppointments();
             }
 
-            /*
+            / *
 			* Check if its time to re-show the satellite image instead of the noticeboard
 			* And if the 1-th (i.e. visible) pane is the satellite, slide the image around a bit
-             */
+            * /
             private void checkSatPane(LocalDateTime timestamp) {
                 ObservableList<Node> childs = stack.getChildren();
                 var backPane = childs.get(0);
@@ -226,8 +259,30 @@ public class App extends Application {
         clockService.setPeriod(Duration.seconds(10));
         clockService.setRestartOnFailure(true);
         clockService.start();
-
+         */
         //=========================================
+    }
+
+    /*
+	 * Check if its time to re-show the satellite image instead of the noticeboard
+	 * And if the 1-th (i.e. visible) pane is the satellite, slide the image around a bit
+     */
+    private void checkSatPane(LocalDateTime timestamp) {
+        ObservableList<Node> childs = stack.getChildren();
+        var backPane = childs.get(0);
+        //var test = childs.get(1);
+        if (backPane.getId().equals(SAT_ID)) {
+            if (hideTimestamp == null) {
+                hideTimestamp = timestamp;
+            } else {
+                if (hideTimestamp.isBefore(timestamp.minusMinutes(5))) {
+                    backPane.toFront();
+                }
+            }
+        }
+        if (childs.get(1).getId().equals(SAT_ID)) {
+            satImagePane.slideImage3(timestamp);
+        }
     }
 
     public static void main(String[] args) {
