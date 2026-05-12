@@ -144,7 +144,7 @@ public class EUmetViewer {
                     "https://epic.gsfc.nasa.gov/archive/natural/%s/%s/%s/png/%s.png",
                     yyyy, mm, dd, imageName);
             }
-            LOGGER.trace("new image at :" + imageUrl);
+            LOGGER.info("new image at :" + imageUrl);
 
             // Now request the image
             HttpRequest request = HttpRequest.newBuilder()
@@ -168,7 +168,6 @@ public class EUmetViewer {
         HttpRequest request;
         String json = "";
         String joiner = nasaURL.contains("?") ? "&api_key=" : "?api_key=";
-
         try {
             // Request the JSON that has the image URL
             request = HttpRequest.newBuilder()
@@ -185,6 +184,8 @@ public class EUmetViewer {
                 }
                 json = (String) response.body();
                 LOGGER.info("JSON : " + json.substring(0, 60) + "...");
+            } else {
+                LOGGER.info("+++++++ Null response from calling " +nasaURL + joiner + apiKey);
             }
 
         } catch (Exception e) {
