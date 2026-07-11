@@ -1,6 +1,9 @@
 
 package driverway.nb.externals;
 
+import java.time.LocalDate;
+import org.shredzone.commons.suncalc.MoonIllumination;
+import org.shredzone.commons.suncalc.MoonPhase;
 /**
  *
  * @author john & Claude AI 4.  
@@ -29,6 +32,8 @@ public class MoonPhaseGenerator {
      * @return MoonPhaseResult containing SVG path, illumination %, and phase name
      */
     public static MoonPhaseResult generateMoonPath(double phase, double cx, double cy, double r) {
+
+
         // Convert phase (0-29.53 days) to angle (0-2π)
         double angle = (phase / 29.53) * 2 * Math.PI;
         
@@ -90,13 +95,14 @@ public class MoonPhaseGenerator {
     
     
     /**
-     * (Only used by test code in main)
+     * (No longer used)
      * Calculate lunar phase from date
      * @param year Year
      * @param month Month (1-12)
      * @param day Day of month
      * @return Lunar day (0.0 to 29.53)
      */
+    @Deprecated
     public static double calculateLunarPhase(int year, int month, int day) {
         // Known new moon: January 1, 2000 at 18:14 UTC
         // Julian day number for this reference
@@ -121,7 +127,7 @@ public class MoonPhaseGenerator {
         return phase;
     }
     
-    // Example usage and test method
+    /* Example usage and test method
     public static void main(String[] args) {
         // Test with various phases
         double[] testPhases = {0, 3, 7.38, 8,11, 14.77, 18, 22.15, 25, 29.53};
@@ -139,10 +145,38 @@ public class MoonPhaseGenerator {
         }
         
         // Test with current date (example)
-        double currentPhase = calculateLunarPhase(2025, 5, 25);
+        double currentPhase = calculateLunarPhase(2026,7,15);
+//
+// ==============  Try commons-suncalc ===========================   
+
+
         MoonPhaseResult current = generateMoonPath(currentPhase, 100, 100, 90);
-        System.out.printf("Current phase (May 25, 2025): %.2f days%n", currentPhase);
+        System.out.printf("Current phase (2026,7,15): %.2f days%n", currentPhase);
         //System.out.printf("Current phase name: %s%n", current.phaseName);
         System.out.printf("Current illumination: %d%%%n", current.illumination);
+
+        
+        LocalDate today = LocalDate.of(2026,7,1);
+        
+        MoonIllumination illum = MoonIllumination.compute()
+            .on(today)
+            .execute();
+        
+        double angle = Math.round(illum.getAngle());
+        System.out.println("\n==============\nangle today " + angle);
+        
+        MoonIllumination.Parameters mp1 = MoonIllumination.compute().on(2026, 7, 1);
+        
+        for (int i = 1; i <= 30; i++) {
+            var thing = mp1.execute();
+            long percent = Math.round(thing.getFraction() * 100.0);
+            angle = Math.round(thing.getAngle());
+            double elong = Math.round(thing.getElongation());
+            System.out.println(today.getMonth()+"/"+today.getDayOfMonth()+", percent " + percent + "%, Angle "+ angle + ", elong "+elong);
+            mp1.plusDays(1);
+            today = today.plusDays(1);
+        }
+        
     }
+*/
 }

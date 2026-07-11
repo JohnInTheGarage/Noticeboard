@@ -8,11 +8,15 @@ import driverway.nb.weatherfinder.WeatherReader;
 import static java.lang.Thread.sleep;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import driverway.sunandmoondata.SunAndMoonData;
+import org.shredzone.commons.suncalc.MoonIllumination;
+import org.shredzone.commons.suncalc.SunTimes;
+
 
 /**
  *
@@ -34,9 +38,8 @@ public class UpdateFetcher implements Runnable {
     private final PreferenceHelper ph;
     private final Properties nbProperties;
     private final DateTimeFormatter formatDateAndTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private Properties samd;
     private double moonAge;
-    
+            
     //Minutes, not seconds
     private final int intervalForecast;
     private final int intervalAppointments;
@@ -121,16 +124,7 @@ public class UpdateFetcher implements Runnable {
         Forecast latest = louiseLear.readWeather();
         
         if (sunMoonDay != LocalDate.now().getDayOfMonth()){
-            SunAndMoonData sunMoonParser = new SunAndMoonData();
-            String sunMoonURL = nbProperties.getProperty("SunAndMoonURL");
-            String timeZone = nbProperties.getProperty("LocalTimeZone");
-            String latitude = nbProperties.getProperty("UkMetOfficeLatitude");
-            String longitude = nbProperties.getProperty("UkMetOfficeLongitude");
-            samd = sunMoonParser.collectData(sunMoonURL, timeZone, latitude, longitude);
-            ph.putItem("sunrise", samd.getProperty("sunrise", "00:00"));
-            ph.putItem("sunset", samd.getProperty("sunset", "00:00"));
-            double moonAngle = Double.parseDouble(samd.getProperty("moonangle", "0.0"));
-            moonAge = 30 * (moonAngle / 360);
+            calcAstroData();
             sunMoonDay = LocalDate.now().getDayOfMonth();
         } 
         
@@ -192,6 +186,44 @@ public class UpdateFetcher implements Runnable {
         return t.format(formatDateAndTime);
     }
 
+    /*
+    * Get sunrise and sunset times and also moon phase approximation
+    */
+    
+    private void calcAstroData(){
+        
+        double latitude = Double.parseDouble(nbProperties.getProperty("UkMetOfficeLatitude"));
+        double longitude = Double.parseDouble(nbProperties.getProperty("UkMetOfficeLongitude"));
+
+        ZonedDateTime now = ZonedDateTime.now();
+        SunTimes sun = SunTimes.compute()
+            .on(now) 
+            .at(latitude, longitude) 
+            .execute();   
+        LocalTime timeOfSunrise = sun.getRise().toLocalTime();
+        LocalTime timeOfSunset = sun.getSet().toLocalTime();
+        String hhmm = timeOfSunrise.format(DateTimeFormatter.ofPattern("HH:mm"));
+        ph.putItem("sunrise", hhmm);
+        hhmm = timeOfSunset.format(DateTimeFormatter.ofPattern("HH:mm"));
+        ph.putItem("sunset", hhmm);
+        
+        MoonIllumination.Parameters mp = MoonIllumination.compute().on(now);
+        var moon = mp.execute();
+        
+        // Illumination of moon, so increases towards full moon, then decreases
+        double fraction = moon.getFraction(); 
+        double angle = Math.round(moon.getAngle());
+        LOGGER.trace("fraction "+fraction);
+        // commons-suncalc returns moon angle as negative when moon is waxing
+        if (angle < 0){
+            moonAge = 14 * fraction;
+        } else {
+            moonAge = 29 - (14*fraction);
+        }
+        
+    }
+    
+    
     @Override
     public String toString() {
         String thing = String.format("Updatefetcher- Appts- last :%s, next :%s Forecast- last :%s, next ;%s",
