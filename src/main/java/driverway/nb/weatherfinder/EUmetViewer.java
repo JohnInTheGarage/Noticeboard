@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import driverway.nb.utils.PreferenceHelper;
+import java.io.FileWriter;
 
 /**
  *
@@ -183,6 +184,13 @@ public class EUmetViewer {
                     LOGGER.error("bad status code from APOD call :" + getStatusCode());
                 }
                 json = (String) response.body();
+                
+//                File debug = new File("debug.txt");
+//                debug.createNewFile();
+//                FileWriter fw = new FileWriter(debug);
+//                fw.write(json);
+//                fw.close();
+
                 LOGGER.info("JSON : " + json.substring(0, 60) + "...");
             } else {
                 LOGGER.info("+++++++ Null response from calling " +nasaURL + joiner + apiKey);

@@ -115,7 +115,7 @@ public class SatelliteImagePane extends Pane {
             eveningImage = true;
         }
         if (ApodURL.contains("://")) {
-            ev.callNasaImageApi(ApodURL, NasaApiKey, imageLocation, "url", false);
+            ev.callNasaImageApi(ApodURL, NasaApiKey, imageLocation, "hdurl", false);
             eveningImage = true;
         }
 //        if (PhotoJournalURL.contains("://")) {
